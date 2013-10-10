@@ -180,7 +180,7 @@ void setMotors()
         motorLeft(FORWARDS);
         motorRight(FORWARDS);
 
-        /*if(!MICRO_FRONT_Left)
+        if(!MICRO_FRONT_Left)
         {
           driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
@@ -189,7 +189,7 @@ void setMotors()
         {
           driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
-        }*/
+        }
 
         if(IRFR_FRONT_Diff > IRFL_FRONT_Thresh)
         {
