@@ -5,6 +5,7 @@
  
   #include "config.h"
   #include "states.h"
+  #include "thresholds.h"
   
 int IRFL_FRONT_Off, IRFL_FRONT_On, IRFL_SIDE_Off, IRFL_SIDE_On, IRFL_FRONT_Diff, IRFL_SIDE_Diff;
 int IRFR_FRONT_Off, IRFR_FRONT_On, IRFR_SIDE_Off, IRFR_SIDE_On, IRFR_FRONT_Diff, IRFR_SIDE_Diff;
@@ -179,7 +180,7 @@ void setMotors()
         motorLeft(FORWARDS);
         motorRight(FORWARDS);
 
-        if(!MICRO_FRONT_Left)
+        /*if(!MICRO_FRONT_Left)
         {
           driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
@@ -188,14 +189,26 @@ void setMotors()
         {
           driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+        }*/
+
+        if(IRFR_FRONT_Diff > IRFL_FRONT_Thresh)
+        {
+          driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
+          driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
         }
+        else if(IRFL_FRONT_Diff > IRFR_FRONT_Thresh)
+        {
+          driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+          driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+        }
+
       break;
 
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
         motorLeft(BACKWARDS);
         motorRight(BACKWARDS);
 
-        if(driveTimer < millis())
+        if(driveTimer < millis() || !(IRFL_FRONT_Diff > IRFL_FRONT_Thresh || IRFR_FRONT_Diff > IRFR_FRONT_Thresh))
         {
           driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
@@ -216,16 +229,31 @@ void setMotors()
         motorLeft(BACKWARDS);
         motorRight(BACKWARDS);
 
-        if(driveTimer < millis())
+        if(driveTimer < millis() || !(IRFL_FRONT_Diff > IRFL_FRONT_Thresh || IRFR_FRONT_Diff > IRFR_FRONT_Thresh))
         {
           driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
         }
       break;
-      
+
       case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
         motorLeft(FORWARDS);
         motorRight(BACKWARDS);
+
+        if(driveTimer < millis())
+        {
+          driveState = STATE_DRIVE_FORWARDS;
+        }
+      break;
+
+      case STATE_DRIVE_STOP:
+        motorLeft(STOP);
+        motorRight(STOP);
+
+        if(IRFL_FRONT_Diff > IRFL_FRONT_Thresh || IRFR_FRONT_Diff > IRFR_FRONT_Thresh)
+        {
+          driveTimer = millis() + TIMER_DRIVE_STOP;
+        }
 
         if(driveTimer < millis())
         {
@@ -248,10 +276,15 @@ void motorLeft(int direction)
     digitalWrite(MOTOR_L_A_PIN, HIGH);
     digitalWrite(MOTOR_L_B_PIN, LOW);
   }
-  else
+  else if(direction == BACKWARDS)
   {
     digitalWrite(MOTOR_L_A_PIN, LOW);
     digitalWrite(MOTOR_L_B_PIN, HIGH); 
+  }
+  else
+  {
+    digitalWrite(MOTOR_L_A_PIN, LOW);
+    digitalWrite(MOTOR_L_B_PIN, LOW); 
   }
 }
  
@@ -262,11 +295,16 @@ void motorRight(int direction)
     digitalWrite(MOTOR_R_A_PIN, LOW);
     digitalWrite(MOTOR_R_B_PIN, HIGH);
   }
-  else
+  else if(direction == BACKWARDS)
   {
     digitalWrite(MOTOR_R_A_PIN, HIGH);
     digitalWrite(MOTOR_R_B_PIN, LOW);
   } 
+  else
+  {
+    digitalWrite(MOTOR_R_A_PIN, LOW);
+    digitalWrite(MOTOR_R_B_PIN, LOW);
+  }
 }
 
 int freeRam () {
