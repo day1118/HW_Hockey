@@ -1,6 +1,6 @@
 /*** Define debug level ***/
 #define	DEBUG_PRINT_ON
-#define	PLOT_PRINT_ON
+//#define	PLOT_PRINT_ON
 
 #define LED_READ_DELAY_TIME                 4
 
