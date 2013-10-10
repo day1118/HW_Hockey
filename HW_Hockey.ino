@@ -13,6 +13,8 @@ int IRBL_BACK_Off, IRBL_BACK_On, IRBL_SIDE_Off, IRBL_SIDE_On, IRBL_BACK_Diff, IR
 int IRBR_BACK_Off, IRBR_BACK_On, IRBR_SIDE_Off, IRBR_SIDE_On, IRBR_BACK_Diff, IRBR_SIDE_Diff;
 
 int MICRO_FRONT_Left, MICRO_FRONT_Right, MICRO_BACK_Left, MICRO_BACK_Right;
+
+int BALL_Off, BALL_RED_On, BALL_IR_On, BALL_RED_Diff, BALL_IR_Diff;
   
 int defaultMotorSpeed = 220;
 
@@ -31,6 +33,9 @@ void setup() {
   pinMode(IRFR_IR_LED_PIN, OUTPUT);
   pinMode(IRBL_IR_LED_PIN, OUTPUT);
   pinMode(IRBR_IR_LED_PIN, OUTPUT);
+
+  pinMode(BALL_COLOUR_RED_LED_PIN, OUTPUT);
+  pinMode(BALL_COLOUR_IR_LED_PIN, OUTPUT);
 
   pinMode(MOTOR_L_A_PIN, OUTPUT);
   pinMode(MOTOR_L_B_PIN, OUTPUT);
@@ -57,7 +62,8 @@ void loop() {
   // Read each sensor in a loop
   readIRSensors();
   readTouchSensors();
-  setMotors();  
+  setMotors();
+  readColourSensors();
   
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState);
@@ -477,6 +483,33 @@ void motorRight(int direction)
 
   #ifdef PLOT_PRINT_MOTORS_ON
     PLOT("motorRight", direction);
+  #endif
+}
+
+void readColourSensors()
+{
+  digitalWrite(BALL_COLOUR_RED_LED_PIN, HIGH);
+  delay(LED_READ_DELAY_TIME);
+  BALL_RED_On = analogRead(BALL_COLOUR_PHOTOTRANSISTOR_PIN);
+  digitalWrite(BALL_COLOUR_RED_LED_PIN, LOW);
+
+  digitalWrite(BALL_COLOUR_IR_LED_PIN, HIGH);
+  delay(LED_READ_DELAY_TIME);
+  BALL_IR_On = analogRead(BALL_COLOUR_PHOTOTRANSISTOR_PIN);
+  digitalWrite(BALL_COLOUR_IR_LED_PIN, LOW);
+
+  delay(LED_READ_DELAY_TIME);
+  BALL_Off = analogRead(BALL_COLOUR_PHOTOTRANSISTOR_PIN);
+
+  BALL_RED_Diff = BALL_RED_On - BALL_Off;
+  BALL_IR_Diff = BALL_IR_On - BALL_Off;
+  
+  #ifdef PLOT_PRINT_COLOUR_ON
+    PLOT("BALL_Off", BALL_Off);
+    PLOT("BALL_RED_On", BALL_RED_On);
+    PLOT("BALL_IR_On", BALL_IR_On);
+    PLOT("BALL_RED_Diff", BALL_RED_Diff);
+    PLOT("BALL_IR_Diff", BALL_IR_Diff);
   #endif
 }
 

@@ -2,7 +2,7 @@
 #define	DEBUG_PRINT_ON
 #define	PLOT_PRINT_ON
 
-#define MOTORS_ON
+#define MOTORS_OFF
 
 #define PLOT_PRINT_STATUS_ON
 #define PLOT_PRINT_TOUCH_ON
