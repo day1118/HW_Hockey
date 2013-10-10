@@ -1,6 +1,14 @@
 /*** Define debug level ***/
 #define	DEBUG_PRINT_ON
-//#define	PLOT_PRINT_ON
+#define	PLOT_PRINT_ON
+
+#define MOTORS_ON
+
+#define PLOT_PRINT_STATUS_ON
+#define PLOT_PRINT_TOUCH_ON
+#define PLOT_PRINT_IR_ON
+#define PLOT_PRINT_COLOUR_ON
+#define PLOT_PRINT_MOTORS_ON
 
 #define LED_READ_DELAY_TIME                 4
 
@@ -31,7 +39,7 @@
 #define IRFL_IR_LED_PIN                     32
 #define IRFL_SIDE_PHOTOTRANSISTOR_PIN       A10
 #define IRFL_FRONT_PHOTOTRANSISTOR_PIN      A9
-
+  
 #define GREEN_MAT_LEFT_RED_LED_PIN          24
 #define GREEN_MAT_LEFT_GREEN_LED_PIN        26
 #define GREEN_MAT_LEFT_PHOTOTRANSISTOR_PIN  A12

@@ -58,8 +58,12 @@ void loop() {
   readIRSensors();
   readTouchSensors();
   setMotors();  
-  //PLOT_OVERRIDE("freeMemory", freeMemory());
-  PLOT_OVERRIDE("freeMemory", freeRam());
+  
+  #ifdef PLOT_PRINT_STATUS_ON
+    PLOT("overallState", overallState);
+    PLOT("millis", millis());
+  #endif
+  //PLOT_OVERRIDE("freeMemory", freeRam());
 }
 
 
@@ -126,33 +130,35 @@ void readIRSensors()
   IRBR_BACK_Diff = IRBR_BACK_On - IRBR_BACK_Off;
   IRBR_SIDE_Diff = IRBR_SIDE_On - IRBR_SIDE_Off;
   
-  PLOT("IRFL_FRONT_Off", IRFL_FRONT_Off);
-  PLOT("IRFL_FRONT_On", IRFL_FRONT_On);
-  PLOT("IRFL_SIDE_Off", IRFL_SIDE_Off);
-  PLOT("IRFL_SIDE_On", IRFL_SIDE_On);
-  PLOT("IRFL_FRONT_Diff", IRFL_FRONT_Diff);
-  PLOT("IRFL_SIDE_Diff", IRFL_SIDE_Diff);
-  
-  PLOT("IRFR_FRONT_Off", IRFR_FRONT_Off);
-  PLOT("IRFR_FRONT_On", IRFR_FRONT_On);
-  PLOT("IRFR_SIDE_Off", IRFR_SIDE_Off);
-  PLOT("IRFR_SIDE_On", IRFR_SIDE_On);
-  PLOT("IRFR_FRONT_Diff", IRFR_FRONT_Diff);
-  PLOT("IRFR_SIDE_Diff", IRFR_SIDE_Diff);
-  
-  PLOT("IRBL_BACK_Off", IRBL_BACK_Off);
-  PLOT("IRBL_BACK_On", IRBL_BACK_On);
-  PLOT("IRBL_SIDE_Off", IRBL_SIDE_Off);
-  PLOT("IRBL_SIDE_On", IRBL_SIDE_On);
-  PLOT("IRBL_BACK_Diff", IRBL_BACK_Diff);
-  PLOT("IRBL_SIDE_Diff", IRBL_SIDE_Diff);
-  
-  PLOT("IRBR_BACK_Off", IRBR_BACK_Off);
-  PLOT("IRBR_BACK_On", IRBR_BACK_On);
-  PLOT("IRBR_SIDE_Off", IRBR_SIDE_Off);
-  PLOT("IRBR_SIDE_On", IRBR_SIDE_On);
-  PLOT("IRBR_BACK_Diff", IRBR_BACK_Diff);
-  PLOT("IRBR_SIDE_Diff", IRBR_SIDE_Diff);
+  #ifdef PLOT_PRINT_IR_ON
+    PLOT("IRFL_FRONT_Off", IRFL_FRONT_Off);
+    PLOT("IRFL_FRONT_On", IRFL_FRONT_On);
+    PLOT("IRFL_SIDE_Off", IRFL_SIDE_Off);
+    PLOT("IRFL_SIDE_On", IRFL_SIDE_On);
+    PLOT("IRFL_FRONT_Diff", IRFL_FRONT_Diff);
+    PLOT("IRFL_SIDE_Diff", IRFL_SIDE_Diff);
+    
+    PLOT("IRFR_FRONT_Off", IRFR_FRONT_Off);
+    PLOT("IRFR_FRONT_On", IRFR_FRONT_On);
+    PLOT("IRFR_SIDE_Off", IRFR_SIDE_Off);
+    PLOT("IRFR_SIDE_On", IRFR_SIDE_On);
+    PLOT("IRFR_FRONT_Diff", IRFR_FRONT_Diff);
+    PLOT("IRFR_SIDE_Diff", IRFR_SIDE_Diff);
+    
+    PLOT("IRBL_BACK_Off", IRBL_BACK_Off);
+    PLOT("IRBL_BACK_On", IRBL_BACK_On);
+    PLOT("IRBL_SIDE_Off", IRBL_SIDE_Off);
+    PLOT("IRBL_SIDE_On", IRBL_SIDE_On);
+    PLOT("IRBL_BACK_Diff", IRBL_BACK_Diff);
+    PLOT("IRBL_SIDE_Diff", IRBL_SIDE_Diff);
+    
+    PLOT("IRBR_BACK_Off", IRBR_BACK_Off);
+    PLOT("IRBR_BACK_On", IRBR_BACK_On);
+    PLOT("IRBR_SIDE_Off", IRBR_SIDE_Off);
+    PLOT("IRBR_SIDE_On", IRBR_SIDE_On);
+    PLOT("IRBR_BACK_Diff", IRBR_BACK_Diff);
+    PLOT("IRBR_SIDE_Diff", IRBR_SIDE_Diff);
+  #endif
 }
 
 void readTouchSensors()
@@ -163,11 +169,13 @@ void readTouchSensors()
   MICRO_BACK_Left = readDigitalSensor(BACK_LEFT_TOUCH_SENSOR, averageCount);
   MICRO_BACK_Right = readDigitalSensor(BACK_RIGHT_TOUCH_SENSOR, averageCount);
   
-  PLOT("MICRO_FRONT_Left", MICRO_FRONT_Left);
-  PLOT("MICRO_FRONT_Right", MICRO_FRONT_Right);
-
-  PLOT("MICRO_BACK_Left", MICRO_BACK_Left);
-  PLOT("MICRO_BACK_Right", MICRO_BACK_Right);
+  #ifdef PLOT_PRINT_TOUCH_ON
+    PLOT("MICRO_FRONT_Left", MICRO_FRONT_Left);
+    PLOT("MICRO_FRONT_Right", MICRO_FRONT_Right);
+  
+    PLOT("MICRO_BACK_Left", MICRO_BACK_Left);
+    PLOT("MICRO_BACK_Right", MICRO_BACK_Right);
+  #endif
 }
 
 void setMotors()
@@ -274,7 +282,7 @@ void setMotors()
         motorLeft(BACKWARDS);
         motorRight(FORWARDS);
 
-        if(driveTimer < millis() || !(IRFL_SIDE_Diff > IRFL_SIDE_Thresh))
+        if(driveTimer < millis() || !(IRFR_SIDE_Diff > IRFR_SIDE_Thresh))
         {
           driveState = STATE_DRIVE_FORWARDS;
         }
@@ -284,7 +292,7 @@ void setMotors()
         motorLeft(FORWARDS);
         motorRight(BACKWARDS);
 
-        if(driveTimer < millis() || !(IRFR_SIDE_Diff > IRFR_SIDE_Thresh))
+        if(driveTimer < millis() || !(IRFL_SIDE_Diff > IRFL_SIDE_Thresh))
         {
           driveState = STATE_DRIVE_FORWARDS;
         }
@@ -309,12 +317,12 @@ void setMotors()
           driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
         }
-        else if(IRBR_BACK_Diff > IRBR_BACK_Thresh)
+        else if(IRBR_BACK_Diff > IRBL_BACK_Thresh)
         {
           driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
         }
-        else if(IRBR_BACK_Diff > IRBR_BACK_Thresh)
+        else if(IRBL_BACK_Diff > IRBR_BACK_Thresh)
         {
           driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
@@ -332,8 +340,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
-        motorLeft(BACKWARDS);
-        motorRight(BACKWARDS);
+        motorLeft(FORWARDS);
+        motorRight(FORWARDS);
 
         if(driveTimer < millis() || !(IRBR_BACK_Diff > IRBR_BACK_Thresh || IRBR_BACK_Diff > IRBR_BACK_Thresh))
         {
@@ -392,7 +400,7 @@ void setMotors()
         motorLeft(FORWARDS);
         motorRight(BACKWARDS);
 
-        if(driveTimer < millis() || !(IRBL_SIDE_Diff > IRBL_SIDE_Thresh))
+        if(driveTimer < millis() || !(IRBR_SIDE_Diff > IRBR_SIDE_Thresh))
         {
           driveState = STATE_DRIVE_FORWARDS;
         }
@@ -402,7 +410,7 @@ void setMotors()
         motorLeft(BACKWARDS);
         motorRight(FORWARDS);
 
-        if(driveTimer < millis() || !(IRBR_SIDE_Diff > IRBR_SIDE_Thresh))
+        if(driveTimer < millis() || !(IRBL_SIDE_Diff > IRBL_SIDE_Thresh))
         {
           driveState = STATE_DRIVE_FORWARDS;
         }
@@ -410,10 +418,20 @@ void setMotors()
     }
   }
 
-  PLOT("overallState", overallState);
-  PLOT("driveState", driveState);
-  PLOT("driveTimer", driveTimer);
-  PLOT("millis", millis());
+  #ifdef MOTORS_ON
+    analogWrite(MOTOR_L_ENABLE_PIN, motorLSpeed);
+    analogWrite(MOTOR_R_ENABLE_PIN, motorRSpeed);
+  #else
+    analogWrite(MOTOR_L_ENABLE_PIN, 0);
+    analogWrite(MOTOR_R_ENABLE_PIN, 0);
+  #endif
+
+  #ifdef PLOT_PRINT_MOTORS_ON  
+    PLOT("driveState", driveState);
+    PLOT("driveTimer", driveTimer);
+    PLOT("motorLSpeed", motorLSpeed);
+    PLOT("motorRSpeed", motorRSpeed);
+  #endif
 }
 
 void motorLeft(int direction)
@@ -433,6 +451,10 @@ void motorLeft(int direction)
     digitalWrite(MOTOR_L_A_PIN, LOW);
     digitalWrite(MOTOR_L_B_PIN, LOW); 
   }
+
+  #ifdef PLOT_PRINT_MOTORS_ON
+    PLOT("motorLeft", direction);
+  #endif
 }
  
 void motorRight(int direction)
@@ -452,6 +474,10 @@ void motorRight(int direction)
     digitalWrite(MOTOR_R_A_PIN, LOW);
     digitalWrite(MOTOR_R_B_PIN, LOW);
   }
+
+  #ifdef PLOT_PRINT_MOTORS_ON
+    PLOT("motorRight", direction);
+  #endif
 }
 
 int freeRam () {
