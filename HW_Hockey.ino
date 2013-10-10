@@ -201,8 +201,17 @@ void setMotors()
           driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
         }
-
-      break;
+        else if(IRFL_SIDE_Diff > IRFL_SIDE_Thresh)
+        {
+          driveState = STATE_DRIVE_BEND_RIGHT;
+          driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT; 
+        }
+        else if(IRFR_SIDE_Diff > IRFR_SIDE_Thresh)
+        {
+          driveState = STATE_DRIVE_BEND_LEFT;
+          driveTimer = millis() + TIMER_DRIVE_BEND_LEFT; 
+        }
+        break;
 
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
         motorLeft(BACKWARDS);
@@ -213,7 +222,7 @@ void setMotors()
           driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
         }
-      break;
+        break;
 
       case STATE_DRIVE_BACKOFF_LEFT_LEFT:
         motorLeft(BACKWARDS);
@@ -223,7 +232,7 @@ void setMotors()
         {
           driveState = STATE_DRIVE_FORWARDS;
         }
-      break;
+        break;
 
       case STATE_DRIVE_BACKOFF_RIGHT_BACK:
         motorLeft(BACKWARDS);
@@ -234,7 +243,7 @@ void setMotors()
           driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
         }
-      break;
+        break;
 
       case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
         motorLeft(FORWARDS);
@@ -244,7 +253,7 @@ void setMotors()
         {
           driveState = STATE_DRIVE_FORWARDS;
         }
-      break;
+        break;
 
       case STATE_DRIVE_STOP:
         motorLeft(STOP);
@@ -259,7 +268,27 @@ void setMotors()
         {
           driveState = STATE_DRIVE_FORWARDS;
         }
-      break;
+        break;
+
+      case STATE_DRIVE_BEND_LEFT:
+        motorLeft(BACKWARDS);
+        motorRight(FORWARDS);
+
+        if(driveTimer < millis() || !(IRFL_SIDE_Diff > IRFL_SIDE_Thresh))
+        {
+          driveState = STATE_DRIVE_FORWARDS;
+        }
+        break;
+
+      case STATE_DRIVE_BEND_RIGHT:
+        motorLeft(FORWARDS);
+        motorRight(BACKWARDS);
+
+        if(driveTimer < millis() || !(IRFR_SIDE_Diff > IRFR_SIDE_Thresh))
+        {
+          driveState = STATE_DRIVE_FORWARDS;
+        }
+        break;
     }
   }
 
