@@ -12,7 +12,7 @@ int IRBL_BACK_Off, IRBL_BACK_On, IRBL_SIDE_Off, IRBL_SIDE_On, IRBL_BACK_Diff, IR
 int IRBR_BACK_Off, IRBR_BACK_On, IRBR_SIDE_Off, IRBR_SIDE_On, IRBR_BACK_Diff, IRBR_SIDE_Diff;
 
 int MICRO_FRONT_Left, MICRO_FRONT_Right, MICRO_BACK_Left, MICRO_BACK_Right;
-
+  
 int defaultMotorSpeed = 220;
 
 int driveState = STATE_DRIVE_FORWARDS;
@@ -190,6 +190,7 @@ void setMotors()
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
         }
       break;
+
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
         motorLeft(BACKWARDS);
         motorRight(BACKWARDS);
@@ -200,6 +201,7 @@ void setMotors()
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
         }
       break;
+
       case STATE_DRIVE_BACKOFF_LEFT_LEFT:
         motorLeft(BACKWARDS);
         motorRight(FORWARDS);
@@ -220,6 +222,7 @@ void setMotors()
           driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
         }
       break;
+      
       case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
         motorLeft(FORWARDS);
         motorRight(BACKWARDS);
