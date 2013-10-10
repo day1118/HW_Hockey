@@ -7,3 +7,6 @@
 #define IRBR_BACK_Thresh		20
 #define IRBL_SIDE_Thresh		30
 #define IRBR_SIDE_Thresh		20
+
+#define BALL_IR_Thresh          900
+#define BALL_RED_Thresh         600

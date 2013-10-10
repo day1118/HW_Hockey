@@ -6,7 +6,12 @@
   #include "config.h"
   #include "states.h"
   #include "thresholds.h"
-  
+  #include <Servo.h> 
+
+Servo servoF;  // create servo object to control a servo 
+Servo servoB;
+Servo servoK;
+ 
 int IRFL_FRONT_Off, IRFL_FRONT_On, IRFL_SIDE_Off, IRFL_SIDE_On, IRFL_FRONT_Diff, IRFL_SIDE_Diff;
 int IRFR_FRONT_Off, IRFR_FRONT_On, IRFR_SIDE_Off, IRFR_SIDE_On, IRFR_FRONT_Diff, IRFR_SIDE_Diff;
 int IRBL_BACK_Off, IRBL_BACK_On, IRBL_SIDE_Off, IRBL_SIDE_On, IRBL_BACK_Diff, IRBL_SIDE_Diff;
@@ -23,7 +28,10 @@ int overallState = STATE_OVERALL_SEARCH_GOAL;
 int motorLSpeed = defaultMotorSpeed;
 int motorRSpeed = defaultMotorSpeed;
 
-unsigned long driveTimer = 0;
+int servoFPos, servoBPos, servoKPos;
+int servoState = STATE_SERVO_SERACH;
+
+unsigned long driveTimer = 0, servoTimer = 0;
 
 int averageCount = 1;
 
@@ -53,6 +61,10 @@ void setup() {
   analogWrite(MOTOR_L_ENABLE_PIN, motorLSpeed);
   analogWrite(MOTOR_R_ENABLE_PIN, motorRSpeed);
 
+  servoF.attach(SERVO_FRONT_PIN, SERVO_FRONT_MIN_PWM, SERVO_FRONT_MAX_PWM);  // attaches the servo on pin 9 to the servo object 
+  servoB.attach(SERVO_BACK_PIN, SERVO_BACK_MIN_PWM, SERVO_BACK_MAX_PWM);
+  servoK.attach(SERVO_KICK_PIN, SERVO_KICK_MIN_PWM, SERVO_KICK_MAX_PWM);
+
   Serial.begin(115200);      // open the serial port at 9600 bps:
 
   DEBUG_PRINT("Starting...");
@@ -64,6 +76,7 @@ void loop() {
   readTouchSensors();
   setMotors();
   readColourSensors();
+  setServos();
   
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState);
@@ -511,6 +524,161 @@ void readColourSensors()
     PLOT("BALL_RED_Diff", BALL_RED_Diff);
     PLOT("BALL_IR_Diff", BALL_IR_Diff);
   #endif
+}
+
+void setServos()
+{
+  int ballType = determineBallType();
+
+  switch(servoState)
+  {
+    case STATE_SERVO_SERACH:
+      servoFPos = SERVO_FRONT_UP;
+      servoBPos = SERVO_BACK_DOWN;
+      servoKPos = SERVO_KICK_UP;
+
+      if(ballType == BALL_WRONG)
+      {
+        servoTimer = millis() + TIMER_SERVO_WRONG_BALL;
+        servoState = STATE_SERVO_WRONG_BALL;
+      }
+      else if(ballType == BALL_RIGHT)
+      {  
+        servoTimer = millis() + TIMER_SERVO_RIGHT_BALL;
+        servoState = STATE_SERVO_RIGHT_BALL_DELAY;
+      }
+      break;
+
+    case STATE_SERVO_WRONG_BALL:
+      servoFPos = SERVO_FRONT_DOWN;
+      servoBPos = SERVO_BACK_UP;
+      servoKPos = SERVO_KICK_UP;
+
+      if(ballType == BALL_WRONG)
+      {
+        servoTimer = millis() + TIMER_SERVO_WRONG_BALL;
+      }
+      if(servoTimer < millis())
+      {
+        servoState = STATE_SERVO_SERACH;
+      }
+      break;
+
+    case STATE_SERVO_RIGHT_BALL_DELAY:
+      servoFPos = SERVO_FRONT_DOWN;
+      servoBPos = SERVO_BACK_DOWN;
+      servoKPos = SERVO_KICK_UP;
+
+      if(ballType == BALL_WRONG)
+      {
+        servoTimer = millis() + TIMER_SERVO_WRONG_BALL;
+        servoState = STATE_SERVO_WRONG_BALL;
+      }
+
+      if(servoTimer < millis())
+      {
+        overallState = STATE_OVERALL_SEARCH_GOAL;
+        driveState = STATE_DRIVE_FORWARDS;
+        servoState = STATE_SERVO_RIGHT_BALL;
+        servoTimer = millis() + 5000; // This is tempory until overallState can chage to kick the ball.
+      }
+      break;
+    
+    case STATE_SERVO_RIGHT_BALL:
+      servoFPos = SERVO_FRONT_DOWN;
+      servoBPos = SERVO_BACK_DOWN;
+      servoKPos = SERVO_KICK_UP;
+
+      if(ballType == BALL_WRONG)
+      {
+        servoTimer = millis() + TIMER_SERVO_WRONG_BALL;
+        servoState = STATE_SERVO_WRONG_BALL;
+      }
+
+      // This operation should be done by the overalState. This is just for testing.
+      if(servoTimer < millis())
+      {
+        servoTimer = millis() + TIMER_SERVO_KICK_1;
+        servoState = STATE_SERVO_KICK_1;
+      }
+      break;
+
+    case STATE_SERVO_KICK_1:
+      servoFPos = SERVO_FRONT_UP;
+      servoBPos = SERVO_BACK_UP;
+      servoKPos = SERVO_KICK_UP;
+
+      if(servoTimer < millis())
+      {
+        servoTimer = millis() + TIMER_SERVO_KICK_2;
+        servoState = STATE_SERVO_KICK_2;
+      }
+      break;
+
+    case STATE_SERVO_KICK_2:
+      servoFPos = SERVO_FRONT_UP;
+      servoBPos = SERVO_BACK_UP;
+      servoKPos = SERVO_KICK_DOWN;
+
+      if(servoTimer < millis())
+      {
+        servoTimer = millis() + TIMER_SERVO_KICK_3;
+        servoState = STATE_SERVO_KICK_3;
+      }
+      break;
+
+    case STATE_SERVO_KICK_3:
+      servoFPos = SERVO_FRONT_UP;
+      servoBPos = SERVO_BACK_UP;
+      servoKPos = SERVO_KICK_UP;
+
+      if(servoTimer < millis())
+      {
+        overallState = STATE_OVERALL_SEARCH_BALL;
+        driveState = STATE_DRIVE_FORWARDS;
+        servoState = STATE_SERVO_SERACH;
+      }
+      break;
+  }
+
+  servoF.write(servoFPos);
+  servoB.write(servoBPos);
+  servoK.write(servoKPos);
+
+  #ifdef PLOT_PRINT_SERVOS_ON
+    PLOT("servoFPos", servoFPos);
+    PLOT("servoBPos", servoBPos);
+    PLOT("servoKPos", servoKPos);
+
+    PLOT("servoState", servoState);
+    PLOT("servoTimer", servoTimer);
+  #endif
+}
+
+int determineBallType()
+{
+  int ballColour;
+
+  if(BALL_IR_Diff > BALL_IR_Thresh)
+  {
+    if(BALL_RED_Diff > BALL_RED_Thresh)
+      ballColour = BALL_RED;
+    else
+      ballColour = BALL_BLUE;
+
+    if(DESIRED_BALL_COLOUR == ballColour)
+      ballColour = BALL_RIGHT;
+    else
+      ballColour = BALL_WRONG;
+  }
+  else
+    ballColour = BALL_NONE;
+
+  #ifdef PLOT_PRINT_COLOUR_ON
+    PLOT("ballColour", ballColour);
+  #endif  
+
+  return ballColour;
 }
 
 int freeRam () {

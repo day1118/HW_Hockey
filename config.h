@@ -2,15 +2,18 @@
 #define	DEBUG_PRINT_ON
 #define	PLOT_PRINT_ON
 
-#define MOTORS_OFF
+#define MOTORS_OFF  
 
 #define PLOT_PRINT_STATUS_ON
 #define PLOT_PRINT_TOUCH_ON
 #define PLOT_PRINT_IR_ON
 #define PLOT_PRINT_COLOUR_ON
+#define PLOT_PRINT_SERVOS_ON
 #define PLOT_PRINT_MOTORS_ON
 
 #define LED_READ_DELAY_TIME                 4
+
+#define DESIRED_BALL_COLOUR                 BALL_RED
 
 /*** Define named positions ***/
 #define SERVO_FRONT_UP                      75
@@ -48,9 +51,9 @@
 #define BALL_COLOUR_IR_LED_PIN              30
 #define BALL_COLOUR_PHOTOTRANSISTOR_PIN     A11
 
-#define SERVO_KICK_PIN			    		4
-#define SERVO_FRONT_PIN			   	 		2
-#define SERVO_BACK_PIN			   		 	3
+#define SERVO_KICK_PIN			    		        4
+#define SERVO_FRONT_PIN			   	 		        2
+#define SERVO_BACK_PIN			   		 	        3
 
 #define IRBL_IR_LED_PIN                     25
 #define IRBL_SIDE_PHOTOTRANSISTOR_PIN       A15
