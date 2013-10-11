@@ -1,6 +1,6 @@
 /*** Define debug level ***/
 #define	DEBUG_PRINT_OFF
-#define	PLOT_PRINT_OFF
+#define	PLOT_PRINT_ON
 
 #define MOTORS_ON  
 
@@ -11,6 +11,7 @@
 #define PLOT_PRINT_SERVOS_OFF
 #define PLOT_PRINT_MOTORS_OFF
 #define PLOT_PRINT_CAMERA_ON
+#define PLOT_PRINT_US_ON
 
 #define LED_READ_DELAY_TIME                 4
 #define CAMERA_DELAY_TIME                   20

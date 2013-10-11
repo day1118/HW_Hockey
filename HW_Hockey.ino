@@ -7,6 +7,10 @@
   #include "states.h"
   #include "thresholds.h"
   #include <Servo.h> 
+  #include <NewPing.h> 
+
+NewPing US_back(BACK_ULTRASONIC_SENSOR_TRIG, BACK_ULTRASONIC_SENSOR_ECHO, MAX_ULTRASONIC_DISTANCE_CM);
+NewPing US_front(FRONT_ULTRASONIC_SENSOR_TRIG, FRONT_ULTRASONIC_SENSOR_ECHO, MAX_ULTRASONIC_DISTANCE_CM);
 
 Servo servoF;  // create servo object to control a servo 
 Servo servoB;
@@ -42,6 +46,9 @@ int ballType, greenMatLeftState, greenMatRightState;
 int CAM_startPoint, CAM_conseq, CAM_bestStart, CAM_bestWidth, CAM_center, CAM_direction;
 
 unsigned long driveTimer = 0, servoTimer = 0, goalTimer = 0;
+
+unsigned int US_back_cm;
+unsigned int US_front_cm;
 
 int averageCount = 1;
 
@@ -96,6 +103,7 @@ void loop() {
   setMotors();
   readColourSensors();
   setServos();
+  readUSSensors();
   
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState);
@@ -994,6 +1002,17 @@ int readCamera()
   #ifdef PLOT_PRINT_CAMERA_ON
     PLOT("CAM_Start", CAM_bestStart);
     PLOT("CAM_Width", CAM_bestWidth);
+  #endif
+}
+
+void readUSSensors()
+{
+  US_back_cm = US_back.ping_cm();
+  US_front_cm = US_front.ping_cm();  
+
+  #ifdef PLOT_PRINT_US_ON
+    PLOT("US_back_cm", US_back_cm);
+    PLOT("US_front_cm", US_front_cm);
   #endif
 }
 
