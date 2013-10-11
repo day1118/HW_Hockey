@@ -47,3 +47,6 @@
 
 #define BALL_RED						0
 #define BALL_BLUE						1
+
+#define GREEN_MAT_OFF					0
+#define GREEN_MAT_ON					1

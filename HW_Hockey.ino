@@ -20,6 +20,8 @@ int IRBR_BACK_Off, IRBR_BACK_On, IRBR_SIDE_Off, IRBR_SIDE_On, IRBR_BACK_Diff, IR
 int MICRO_FRONT_Left, MICRO_FRONT_Right, MICRO_BACK_Left, MICRO_BACK_Right;
 
 int BALL_Off, BALL_RED_On, BALL_IR_On, BALL_RED_Diff, BALL_IR_Diff;
+int GML_Off, GML_RED_On, GML_GREEN_On, GML_RED_Diff, GML_GREEN_Diff;
+int GMR_Off, GMR_RED_On, GMR_GREEN_On, GMR_RED_Diff, GMR_GREEN_Diff;
   
 int defaultMotorSpeed = 220;
 
@@ -42,6 +44,10 @@ void setup() {
   pinMode(IRBL_IR_LED_PIN, OUTPUT);
   pinMode(IRBR_IR_LED_PIN, OUTPUT);
 
+  pinMode(GREEN_MAT_LEFT_RED_LED_PIN, OUTPUT);
+  pinMode(GREEN_MAT_LEFT_GREEN_LED_PIN, OUTPUT);
+  pinMode(GREEN_MAT_RIGHT_RED_LED_PIN, OUTPUT);
+  pinMode(GREEN_MAT_RIGHT_GREEN_LED_PIN, OUTPUT);
   pinMode(BALL_COLOUR_RED_LED_PIN, OUTPUT);
   pinMode(BALL_COLOUR_IR_LED_PIN, OUTPUT);
 
@@ -77,6 +83,8 @@ void loop() {
   setMotors();
   readColourSensors();
   setServos();
+  determineGMLState();
+  determineGMRState();
   
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState);
@@ -501,6 +509,26 @@ void motorRight(int direction)
 
 void readColourSensors()
 {
+  digitalWrite(GREEN_MAT_LEFT_RED_LED_PIN, HIGH);
+  delay(LED_READ_DELAY_TIME);
+  GML_RED_On = analogRead(GREEN_MAT_LEFT_PHOTOTRANSISTOR_PIN);
+  digitalWrite(GREEN_MAT_LEFT_RED_LED_PIN, LOW);
+
+  digitalWrite(GREEN_MAT_LEFT_GREEN_LED_PIN, HIGH);
+  delay(LED_READ_DELAY_TIME);
+  GML_GREEN_On = analogRead(GREEN_MAT_LEFT_PHOTOTRANSISTOR_PIN);
+  digitalWrite(GREEN_MAT_LEFT_GREEN_LED_PIN, LOW);
+
+  digitalWrite(GREEN_MAT_RIGHT_RED_LED_PIN, HIGH);
+  delay(LED_READ_DELAY_TIME);
+  GMR_RED_On = analogRead(GREEN_MAT_RIGHT_PHOTOTRANSISTOR_PIN);
+  digitalWrite(GREEN_MAT_RIGHT_RED_LED_PIN, LOW);
+
+  digitalWrite(GREEN_MAT_RIGHT_GREEN_LED_PIN, HIGH);
+  delay(LED_READ_DELAY_TIME);
+  GMR_GREEN_On = analogRead(GREEN_MAT_RIGHT_PHOTOTRANSISTOR_PIN);
+  digitalWrite(GREEN_MAT_RIGHT_GREEN_LED_PIN, LOW);
+
   digitalWrite(BALL_COLOUR_RED_LED_PIN, HIGH);
   delay(LED_READ_DELAY_TIME);
   BALL_RED_On = analogRead(BALL_COLOUR_PHOTOTRANSISTOR_PIN);
@@ -514,10 +542,26 @@ void readColourSensors()
   delay(LED_READ_DELAY_TIME);
   BALL_Off = analogRead(BALL_COLOUR_PHOTOTRANSISTOR_PIN);
 
+  GML_RED_Diff = GML_RED_On - GML_Off;
+  GML_GREEN_Diff = GML_GREEN_On - GML_Off;
+  GMR_RED_Diff = GMR_RED_On - GMR_Off;
+  GMR_GREEN_Diff = GMR_GREEN_On - GMR_Off;
   BALL_RED_Diff = BALL_RED_On - BALL_Off;
   BALL_IR_Diff = BALL_IR_On - BALL_Off;
-  
+
   #ifdef PLOT_PRINT_COLOUR_ON
+    PLOT("GML_Off", GML_Off);
+    PLOT("GML_RED_On", GML_RED_On);
+    PLOT("GML_GREEN_On", GML_GREEN_On);
+    PLOT("GML_RED_Diff", GML_RED_Diff);
+    PLOT("GML_GREEN_Diff", GML_GREEN_Diff);
+
+    PLOT("GMR_Off", GMR_Off);
+    PLOT("GMR_RED_On", GMR_RED_On);
+    PLOT("GMR_GREEN_On", GMR_GREEN_On);
+    PLOT("GMR_RED_Diff", GMR_RED_Diff);
+    PLOT("GMR_GREEN_Diff", GMR_GREEN_Diff);
+
     PLOT("BALL_Off", BALL_Off);
     PLOT("BALL_RED_On", BALL_RED_On);
     PLOT("BALL_IR_On", BALL_IR_On);
@@ -679,6 +723,38 @@ int determineBallType()
   #endif  
 
   return ballColour;
+}
+
+int determineGMLState()
+{
+  int greenMatLeftState;
+
+  if(GML_GREEN_Diff < GML_GREEN_HIGH_Thres && GML_GREEN_Diff > GML_GREEN_LOW_Thres && GML_RED_Diff < GML_RED_HIGH_Thres )
+    greenMatLeftState = GREEN_MAT_ON;
+  else
+    greenMatLeftState = GREEN_MAT_OFF;
+
+  #ifdef PLOT_PRINT_COLOUR_ON
+    PLOT("greenMatLeftState", greenMatLeftState);
+  #endif  
+
+  return greenMatLeftState;
+}
+
+int determineGMRState()
+{
+  int greenMatRightState;
+
+  if(GMR_GREEN_Diff < GMR_GREEN_HIGH_Thres && GMR_GREEN_Diff > GMR_GREEN_LOW_Thres && GMR_RED_Diff < GMR_RED_HIGH_Thres )
+    greenMatRightState = GREEN_MAT_ON;
+  else
+    greenMatRightState = GREEN_MAT_OFF;
+
+  #ifdef PLOT_PRINT_COLOUR_ON
+    PLOT("greenMatRightState", greenMatRightState);
+  #endif  
+
+  return greenMatRightState;
 }
 
 int freeRam () {
