@@ -26,13 +26,11 @@ int MICRO_FRONT_Left, MICRO_FRONT_Right, MICRO_BACK_Left, MICRO_BACK_Right;
 int BALL_Off, BALL_RED_On, BALL_IR_On, BALL_RED_Diff, BALL_IR_Diff;
 int GML_Off, GML_RED_On, GML_GREEN_On, GML_RED_Diff, GML_GREEN_Diff;
 int GMR_Off, GMR_RED_On, GMR_GREEN_On, GMR_RED_Diff, GMR_GREEN_Diff;
-  
-int defaultMotorSpeed = 220;
 
 int driveState = STATE_DRIVE_FORWARDS;
 int overallState = STATE_OVERALL_SEARCH_BALL;
-int motorLSpeed = defaultMotorSpeed;
-int motorRSpeed = defaultMotorSpeed;
+int motorLSpeed = MOTOR_LEFT_NORMAL_SPEED;
+int motorRSpeed = MOTOR_RIGHT_NORMAL_SPEED;
 
 int servoFPos, servoBPos, servoKPos;
 int servoState = STATE_SERVO_SERACH;
@@ -230,6 +228,8 @@ void setMotors()
 {
   if(overallState == STATE_OVERALL_SEARCH_BALL)
   {
+    motorLSpeed = MOTOR_LEFT_NORMAL_SPEED;
+    motorRSpeed = MOTOR_RIGHT_NORMAL_SPEED;
     switch(driveState)
     {
       case STATE_DRIVE_FORWARDS:
@@ -349,6 +349,9 @@ void setMotors()
   }
   else if(overallState == STATE_OVERALL_SEARCH_GOAL)
   {
+    motorLSpeed = MOTOR_LEFT_NORMAL_SPEED;
+    motorRSpeed = MOTOR_RIGHT_NORMAL_SPEED;
+
     if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
     {
       overallState = STATE_OVERALL_ALIGN_GOAL;
@@ -476,6 +479,9 @@ void setMotors()
   }
   else if(overallState == STATE_OVERALL_ALIGN_GOAL)
   {
+    motorLSpeed = MOTOR_LEFT_GOAL_SPEED;
+    motorRSpeed = MOTOR_RIGHT_GOAL_SPEED;
+
     readCamera();
 
     switch(goalState)
@@ -484,7 +490,7 @@ void setMotors()
         motorLeft(BACKWARDS);
         motorRight(BACKWARDS);
 
-        if(goalTimer < millis())
+        if(goalTimer < millis() || US_back_cm < US_BACK_GOAL_MIN_DISTANCE)
         {
           if(greenMatLeftState == GREEN_MAT_ON)
           {

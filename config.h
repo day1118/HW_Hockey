@@ -1,6 +1,6 @@
 /*** Define debug level ***/
 #define	DEBUG_PRINT_OFF
-#define	PLOT_PRINT_ON
+#define	PLOT_PRINT_OFF
 
 #define MOTORS_ON  
 
