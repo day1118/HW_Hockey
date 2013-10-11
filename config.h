@@ -4,14 +4,16 @@
 
 #define MOTORS_ON  
 
-#define PLOT_PRINT_STATUS_OFF
+#define PLOT_PRINT_STATUS_ON
 #define PLOT_PRINT_TOUCH_OFF
 #define PLOT_PRINT_IR_OFF
 #define PLOT_PRINT_COLOUR_ON
 #define PLOT_PRINT_SERVOS_OFF
 #define PLOT_PRINT_MOTORS_OFF
+#define PLOT_PRINT_CAMERA_ON
 
 #define LED_READ_DELAY_TIME                 4
+#define CAMERA_DELAY_TIME                   20
 
 #define DESIRED_BALL_COLOUR                 BALL_RED
 
@@ -60,8 +62,8 @@
 #define IRBL_BACK_PHOTOTRANSISTOR_PIN       A14
 
 #define CAMERA_ANALOG_IN_PIN                A13
-#define CAMERA_CLK_PIN                      27
-#define CAMERA_SI_PIN                       29
+#define CAMERA_CLK_PIN                      29
+#define CAMERA_SI_PIN                       27
 
 #define FRONT_LEFT_TOUCH_SENSOR             22
 #define BACK_LEFT_TOUCH_SENSOR              23

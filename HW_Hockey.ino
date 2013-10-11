@@ -33,11 +33,15 @@ int motorRSpeed = defaultMotorSpeed;
 int servoFPos, servoBPos, servoKPos;
 int servoState = STATE_SERVO_SERACH;
 
+int goalState = STATE_GOAL_DRIVE_OVER_MAT;
+
 int greenMatLeftCount = 0, greenMatRightCount = 0;
 
 int ballType, greenMatLeftState, greenMatRightState;
 
-unsigned long driveTimer = 0, servoTimer = 0;
+int CAM_startPoint, CAM_conseq, CAM_bestStart, CAM_bestWidth, CAM_center, CAM_direction;
+
+unsigned long driveTimer = 0, servoTimer = 0, goalTimer = 0;
 
 int averageCount = 1;
 
@@ -62,6 +66,11 @@ void setup() {
   pinMode(MOTOR_R_A_PIN, OUTPUT);
   pinMode(MOTOR_R_B_PIN, OUTPUT);
   pinMode(MOTOR_R_ENABLE_PIN, OUTPUT);
+
+  pinMode(CAMERA_CLK_PIN, OUTPUT);
+  pinMode(CAMERA_SI_PIN, OUTPUT);
+
+  digitalWrite(CAMERA_CLK_PIN, LOW);
 
   digitalWrite(MOTOR_L_A_PIN, HIGH);
   digitalWrite(MOTOR_L_B_PIN, LOW);
@@ -90,6 +99,8 @@ void loop() {
   
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState);
+    PLOT("driveState", driveState);
+    PLOT("goalState", goalState);
     PLOT("millis", millis());
   #endif
   //PLOT_OVERRIDE("freeMemory", freeRam());
@@ -333,6 +344,8 @@ void setMotors()
     if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
     {
       overallState = STATE_OVERALL_ALIGN_GOAL;
+      goalState = STATE_GOAL_DRIVE_OVER_MAT;
+      goalTimer = millis() + TIMER_GOAL_DRIVE_OVER_MAT;
     }
     else
     {
@@ -455,8 +468,77 @@ void setMotors()
   }
   else if(overallState == STATE_OVERALL_ALIGN_GOAL)
   {
-    motorLeft(STOP);
-    motorRight(STOP);
+    readCamera();
+
+    switch(goalState)
+    {
+      case STATE_GOAL_DRIVE_OVER_MAT:
+        motorLeft(BACKWARDS);
+        motorRight(BACKWARDS);
+
+        if(goalTimer < millis())
+        {
+          if(greenMatLeftState == GREEN_MAT_ON)
+          {
+            goalState = STATE_GOAL_ROTATE_LEFT;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
+          }
+          else
+          {
+            goalState = STATE_GOAL_ROTATE_RIGHT;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
+          }
+        }
+        break;
+
+        case STATE_GOAL_ROTATE_LEFT:
+          motorLeft(FORWARDS);
+          motorRight(BACKWARDS);
+
+          if(CAM_direction == BEACON_CENTER || goalTimer < millis())
+          {
+            goalState = STATE_GOAL_BACKOFF;
+            goalTimer = millis() + TIMER_GOAL_BACKOFF; 
+          }
+          else if(CAM_direction == BEACON_RIGHT)
+          {
+            goalState = STATE_GOAL_ROTATE_RIGHT;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
+          }
+          break;
+
+        case STATE_GOAL_ROTATE_RIGHT:
+          motorLeft(BACKWARDS);
+          motorRight(FORWARDS);
+
+          if(CAM_direction == BEACON_CENTER || goalTimer < millis())
+          {
+            goalState = STATE_GOAL_BACKOFF;
+            goalTimer = millis() + TIMER_GOAL_BACKOFF; 
+          }
+          else if(CAM_direction == BEACON_LEFT)
+          {
+            goalState = STATE_GOAL_ROTATE_LEFT;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
+          }
+          break;
+
+        case STATE_GOAL_BACKOFF:
+          motorLeft(FORWARDS);
+          motorRight(FORWARDS);
+
+          if(!(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON) || goalTimer < millis())
+          {
+            goalState = STATE_GOAL_KICK;
+          }
+          break;
+
+        case STATE_GOAL_KICK:
+          motorLeft(STOP);
+          motorRight(STOP);
+          break;
+
+    }
   }
 
   #ifdef MOTORS_ON
@@ -468,7 +550,6 @@ void setMotors()
   #endif
 
   #ifdef PLOT_PRINT_MOTORS_ON  
-    PLOT("driveState", driveState);
     PLOT("driveTimer", driveTimer);
     PLOT("motorLSpeed", motorLSpeed);
     PLOT("motorRSpeed", motorRSpeed);
@@ -657,7 +738,7 @@ void setServos()
 
       // This operation should be done by the overallState. This is just for testing.
       //if(servoTimer < millis())
-      if(overallState == STATE_OVERALL_ALIGN_GOAL)
+      if(overallState == STATE_OVERALL_ALIGN_GOAL && goalState == STATE_GOAL_KICK)
       {
         servoTimer = millis() + TIMER_SERVO_KICK_1_DELAY;
         servoState = STATE_SERVO_KICK_1_DELAY;
@@ -819,6 +900,101 @@ int determineGMRState()
   #endif  
 
   return greenMatRightStateTemp;
+}
+
+int readCamera()
+{
+  int sensorValue;
+
+  digitalWrite(CAMERA_SI_PIN, HIGH);
+  delayMicroseconds(CAMERA_DELAY_TIME/2);               // wait for a second
+  digitalWrite(CAMERA_CLK_PIN, HIGH);
+  delayMicroseconds(CAMERA_DELAY_TIME/2);               // wait for a second
+  digitalWrite(CAMERA_SI_PIN, LOW);
+  delayMicroseconds(CAMERA_DELAY_TIME/2);
+  
+  for(int i = 0; i < 130; i ++)
+  {
+    digitalWrite(CAMERA_CLK_PIN, HIGH);
+    delayMicroseconds(1);               // wait for a second
+    digitalWrite(CAMERA_CLK_PIN, LOW);
+    delayMicroseconds(1);               // wait for a second
+  }
+  
+  delayMicroseconds(100);               // wait for a second
+
+  digitalWrite(CAMERA_SI_PIN, HIGH);
+  delayMicroseconds(CAMERA_DELAY_TIME/2);               // wait for a second
+  digitalWrite(CAMERA_CLK_PIN, HIGH);
+  delayMicroseconds(CAMERA_DELAY_TIME/2);               // wait for a second
+  digitalWrite(CAMERA_SI_PIN, LOW);
+  delayMicroseconds(CAMERA_DELAY_TIME/2);
+  
+  CAM_startPoint = 0;
+  CAM_conseq = 0;
+  CAM_bestStart = 0;
+  CAM_bestWidth = 0;
+
+  #ifdef PLOT_PRINT_CAMERA_ON
+    PLOT_PRINT("CAM_RAW");
+  #endif
+  
+  for(int i = 0; i < 130; i ++)
+  {
+    digitalWrite(CAMERA_CLK_PIN, HIGH);
+    //delayMicroseconds(CAMERA_DELAY_TIME/2);               // wait for a second
+    sensorValue = analogRead(CAMERA_ANALOG_IN_PIN);
+    #ifdef PLOT_PRINT_CAMERA_ON
+      PLOT_PRINT(":");
+      PLOT_PRINT(sensorValue);
+    #endif
+
+    digitalWrite(CAMERA_CLK_PIN, LOW);
+
+    if(sensorValue > 800)
+    {
+      if(CAM_conseq == 0)
+      {
+         CAM_startPoint = i;
+      }
+    CAM_conseq ++;
+      if(CAM_conseq > CAM_bestWidth)
+      {
+         CAM_bestStart = CAM_startPoint;
+         CAM_bestWidth = CAM_conseq;
+      }
+    }
+    else
+    {
+      CAM_conseq = 0;
+    }
+  }
+ 
+ #ifdef PLOT_PRINT_CAMERA_ON
+    PLOT_PRINTLN("");
+  #endif
+
+  if(CAM_bestWidth > 10)  
+  {
+    CAM_center = CAM_bestStart + (CAM_bestWidth/2);
+
+    if(CAM_center < ((128/2) + 40) && CAM_center > ((128/2) - 40))
+      CAM_direction = BEACON_CENTER;
+    else if(CAM_center < (128/2))
+      CAM_direction = BEACON_LEFT;
+    else if(CAM_center > (128/2))
+      CAM_direction = BEACON_RIGHT;
+  }
+  else
+  {
+    CAM_center = -1;
+    CAM_direction = BEACON_NONE;
+  }
+
+  #ifdef PLOT_PRINT_CAMERA_ON
+    PLOT("CAM_Start", CAM_bestStart);
+    PLOT("CAM_Width", CAM_bestWidth);
+  #endif
 }
 
 int freeRam () {

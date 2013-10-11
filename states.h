@@ -37,12 +37,24 @@
 #define STATE_SERVO_KICK_2				7
 #define STATE_SERVO_KICK_3				8
 
-#define TIMER_SERVO_RIGHT_BALL   		2000
+#define TIMER_SERVO_RIGHT_BALL   		1000
 #define TIMER_SERVO_WRONG_BALL   		2000
 #define TIMER_SERVO_KICK_1_DELAY		2000
 #define TIMER_SERVO_KICK_1				2000
 #define TIMER_SERVO_KICK_2				2000
 #define TIMER_SERVO_KICK_3				2000
+
+/*** Define goal states ***/
+#define STATE_GOAL_DRIVE_OVER_MAT		0
+#define STATE_GOAL_ROTATE_LEFT			1
+#define STATE_GOAL_ROTATE_RIGHT			2
+#define STATE_GOAL_BACKOFF				3
+#define STATE_GOAL_KICK					4
+
+#define TIMER_GOAL_DRIVE_OVER_MAT		1000
+#define TIMER_GOAL_ROTATE_LEFT			10000
+#define TIMER_GOAL_ROTATE_RIGHT			10000
+#define TIMER_GOAL_BACKOFF				2000
 
 #define BALL_NONE						0
 #define BALL_RIGHT						1
@@ -53,3 +65,8 @@
 
 #define GREEN_MAT_OFF					0
 #define GREEN_MAT_ON					1
+
+#define BEACON_NONE						0
+#define BEACON_LEFT						1
+#define BEACON_RIGHT					2
+#define BEACON_CENTER					3
