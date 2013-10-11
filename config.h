@@ -1,8 +1,8 @@
 /*** Define debug level ***/
-#define	DEBUG_PRINT_ON
-#define	PLOT_PRINT_ON
+#define	DEBUG_PRINT_OFF
+#define	PLOT_PRINT_OFF
 
-#define MOTORS_OFF  
+#define MOTORS_ON  
 
 #define PLOT_PRINT_STATUS_OFF
 #define PLOT_PRINT_TOUCH_OFF
