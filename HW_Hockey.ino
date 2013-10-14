@@ -5,6 +5,7 @@
  
   #include "Config.h"
   #include "Motors.h"
+  #include "Filter.h"
 
   #include <Servo.h> 
   #include <NewPing.h> 
