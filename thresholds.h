@@ -1,7 +1,7 @@
 #define IRFL_FRONT_Thresh		200
-#define IRFR_FRONT_Thresh		60
+#define IRFR_FRONT_Thresh		150
 #define IRFL_SIDE_Thresh		200
-#define IRFR_SIDE_Thresh		100
+#define IRFR_SIDE_Thresh		180
 
 #define IRBL_BACK_Thresh		200
 #define IRBR_BACK_Thresh		200
@@ -11,7 +11,7 @@
 #define BALL_IR_Thresh          180
 #define BALL_RED_Thresh         40
 
-#define GML_GREEN_Thres			180
+#define GML_GREEN_Thres			180	
 #define GML_RED_Thres			450
 
 #define GMR_GREEN_Thres			180

@@ -248,43 +248,43 @@ void setMotors()
     motorBSpeed = MOTOR_BRUSHES_NORMAL_SPEED;
     motorBrushes(FORWARDS);
 
+    if(!MICRO_FRONT_Right && driveState != STATE_DRIVE_BACKOFF_LEFT_BACK)
+    {
+      driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
+      driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
+    }
+    else if(!MICRO_FRONT_Left && driveState != STATE_DRIVE_BACKOFF_RIGHT_BACK)
+    {
+      driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+      driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+    }
+    else if(IRFR_FRONT_Diff > IRFR_FRONT_Thresh && driveState != STATE_DRIVE_BACKOFF_LEFT_BACK)
+    {
+      driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
+      driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
+    }
+    else if(IRFL_FRONT_Diff > IRFL_FRONT_Thresh && driveState != STATE_DRIVE_BACKOFF_RIGHT_BACK)
+    {
+      driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+      driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+    }
+    else if(IRFL_SIDE_Diff > IRFL_SIDE_Thresh && driveState != STATE_DRIVE_BEND_RIGHT)
+    {
+      driveState = STATE_DRIVE_BEND_RIGHT;
+      driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT; 
+    }
+    else if(IRFR_SIDE_Diff > IRFR_SIDE_Thresh && driveState != STATE_DRIVE_BEND_LEFT_LEFT && driveState != STATE_DRIVE_BACKOFF_LEFT_BACK  && driveState != STATE_DRIVE_BACKOFF_LEFT_LEFT)
+    {
+      driveState = STATE_DRIVE_BEND_LEFT_LEFT;
+      driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT; 
+    }
+
+
     switch(driveState)
     {
       case STATE_DRIVE_FORWARDS:
         motorLeft(FORWARDS);
         motorRight(FORWARDS);
-
-        if(!MICRO_FRONT_Left)
-        {
-          driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
-          driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
-        }
-        if(!MICRO_FRONT_Right)
-        {
-          driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
-          driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
-        }
-
-        if(IRFR_FRONT_Diff > IRFL_FRONT_Thresh)
-        {
-          driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
-          driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
-        }
-        else if(IRFL_FRONT_Diff > IRFR_FRONT_Thresh)
-        {
-          driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
-          driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
-        }
-        else if(IRFL_SIDE_Diff > IRFL_SIDE_Thresh)
-        {
-          driveState = STATE_DRIVE_BEND_RIGHT;
-          driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT; 
-        }
-        else if(IRFR_SIDE_Diff > IRFR_SIDE_Thresh)
-        {
-          driveState = STATE_DRIVE_BEND_LEFT;
-          driveTimer = millis() + TIMER_DRIVE_BEND_LEFT; 
-        }
         break;
 
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
@@ -344,13 +344,33 @@ void setMotors()
         }
         break;
 
-      case STATE_DRIVE_BEND_LEFT:
-        motorLeft(BACKWARDS);
+      case STATE_DRIVE_BEND_LEFT_LEFT:
+        motorLeft(STOP);
         motorRight(FORWARDS);
 
-        if(driveTimer < millis() || !(IRFR_SIDE_Diff > IRFR_SIDE_Thresh))
+        if(!(IRFR_SIDE_Diff > IRFR_SIDE_Thresh))
         {
           driveState = STATE_DRIVE_FORWARDS;
+        }
+        else if(driveTimer < millis())
+        {
+          driveState = STATE_DRIVE_BEND_LEFT_STRAIGHT;
+          driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_STRAIGHT;
+        }
+        break;
+
+      case STATE_DRIVE_BEND_LEFT_STRAIGHT:
+        motorLeft(FORWARDS);
+        motorRight(FORWARDS);
+
+        if(!(IRFR_SIDE_Diff > IRFR_SIDE_Thresh))
+        {
+          driveState = STATE_DRIVE_FORWARDS;
+        }
+        else if(driveTimer < millis())
+        {
+          driveState = STATE_DRIVE_BEND_LEFT_LEFT;
+          driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT;
         }
         break;
 
@@ -414,8 +434,8 @@ void setMotors()
           }
           else if(IRBR_SIDE_Diff > IRBR_SIDE_Thresh)
           {
-            driveState = STATE_DRIVE_BEND_LEFT;
-            driveTimer = millis() + TIMER_DRIVE_BEND_LEFT; 
+            driveState = STATE_DRIVE_BEND_LEFT_LEFT;
+            driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT; 
           }
           break;
 
