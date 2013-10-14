@@ -55,9 +55,9 @@ unsigned int US_front_cm;
 
 int averageCount = 1;
 
-Motor motorLeft("motorLeft", MOTOR_L_A_PIN, MOTOR_L_B_PIN, MOTOR_L_ENABLE_PIN);
-Motor motorRight("motorRight", MOTOR_R_A_PIN, MOTOR_R_B_PIN, MOTOR_R_ENABLE_PIN);
-Motor motorBrushes("motorBrushes", MOTOR_B_A_PIN, MOTOR_B_B_PIN, MOTOR_B_ENABLE_PIN);
+Motor motorLeft("MOTOR_LEFT", MOTOR_L_A_PIN, MOTOR_L_B_PIN, MOTOR_L_ENABLE_PIN);
+Motor motorRight("MOTOR_RIGHT", MOTOR_R_A_PIN, MOTOR_R_B_PIN, MOTOR_R_ENABLE_PIN);
+Motor motorBrushes("MOTOR_BRUSHES", MOTOR_B_A_PIN, MOTOR_B_B_PIN, MOTOR_B_ENABLE_PIN);
 
 void setup() {
 	// Set IR pins as outputs

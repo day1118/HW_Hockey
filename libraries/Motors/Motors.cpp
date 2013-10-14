@@ -21,7 +21,7 @@ void Motor::stop(){
 	digitalWrite(_pinA, LOW);
 	digitalWrite(_pinB, LOW);
 	analogWrite(_pinEnable, _pwm);
-	plotSpeed(STOP);
+	plotSpeed(DIRECTION_STOP);
 }
 
 void Motor::driveForwards(int pwm){
@@ -31,7 +31,7 @@ void Motor::driveForwards(int pwm){
 		digitalWrite(_pinA, HIGH);
 		digitalWrite(_pinB, LOW);
 	#endif
-	plotSpeed(FORWARDS);
+	plotSpeed(DIRECTION_FORWARDS);
 }
 
 void Motor::driveBackwards(int pwm){
@@ -41,12 +41,12 @@ void Motor::driveBackwards(int pwm){
 		digitalWrite(_pinA, LOW);
 		digitalWrite(_pinB, HIGH);
 	#endif
-	plotSpeed(BACKWARDS);
+	plotSpeed(DIRECTION_BACKWARDS);
 }
 
 void Motor::plotSpeed(int direction){
 	#ifdef PLOT_PRINT_MOTORS_ON
-		PLOT(_name + "Speed", _pwm);
-		PLOT(_name + "Direction", direction);
+		PLOT(_name + "_Speed", _pwm);
+		PLOT(_name + "_Direction", direction);
 	#endif
 }

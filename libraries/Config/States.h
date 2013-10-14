@@ -16,9 +16,9 @@
 #define STATE_DRIVE_BEND_LEFT_STRAIGHT  8
 #define STATE_DRIVE_BEND_RIGHT          9
 
-#define FORWARDS                        0
-#define BACKWARDS                       1
-#define STOP                            2
+#define DIRECTION_FORWARDS              0
+#define DIRECTION_BACKWARDS             1
+#define DIRECTION_STOP                  2
 
 #define TIMER_DRIVE_BACKOFF_LEFT_BACK   1000
 #define TIMER_DRIVE_BACKOFF_LEFT_LEFT   200
