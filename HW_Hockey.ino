@@ -3,9 +3,9 @@
   Plays hockey
  */
  
-  #include "config.h"
-  #include "states.h"
-  #include "thresholds.h"
+  #include "Config.h"
+  #include "Motors.h"
+
   #include <Servo.h> 
   #include <NewPing.h> 
 
@@ -55,6 +55,10 @@ unsigned int US_front_cm;
 
 int averageCount = 1;
 
+Motor motorLeft("motorLeft", MOTOR_L_A_PIN, MOTOR_L_B_PIN, MOTOR_L_ENABLE_PIN);
+Motor motorRight("motorRight", MOTOR_R_A_PIN, MOTOR_R_B_PIN, MOTOR_R_ENABLE_PIN);
+Motor motorBrushes("motorBrushes", MOTOR_B_A_PIN, MOTOR_B_B_PIN, MOTOR_B_ENABLE_PIN);
+
 void setup() {
 	// Set IR pins as outputs
   pinMode(IRFL_IR_LED_PIN, OUTPUT);
@@ -69,35 +73,10 @@ void setup() {
   pinMode(BALL_COLOUR_RED_LED_PIN, OUTPUT);
   pinMode(BALL_COLOUR_IR_LED_PIN, OUTPUT);
 
-  pinMode(MOTOR_L_A_PIN, OUTPUT);
-  pinMode(MOTOR_L_B_PIN, OUTPUT);
-  pinMode(MOTOR_L_ENABLE_PIN, OUTPUT);
-
-  pinMode(MOTOR_R_A_PIN, OUTPUT);
-  pinMode(MOTOR_R_B_PIN, OUTPUT);
-  pinMode(MOTOR_R_ENABLE_PIN, OUTPUT);
-
-  pinMode(MOTOR_B_A_PIN, OUTPUT);
-  pinMode(MOTOR_B_B_PIN, OUTPUT);
-  pinMode(MOTOR_B_ENABLE_PIN, OUTPUT);
-
   pinMode(CAMERA_CLK_PIN, OUTPUT);
   pinMode(CAMERA_SI_PIN, OUTPUT);
 
   digitalWrite(CAMERA_CLK_PIN, LOW);
-
-  digitalWrite(MOTOR_L_A_PIN, HIGH);
-  digitalWrite(MOTOR_L_B_PIN, LOW);
-
-  digitalWrite(MOTOR_R_A_PIN, HIGH);
-  digitalWrite(MOTOR_R_B_PIN, LOW);
-
-  digitalWrite(MOTOR_B_A_PIN, HIGH);
-  digitalWrite(MOTOR_B_B_PIN, LOW);
-
-  analogWrite(MOTOR_L_ENABLE_PIN, motorLSpeed);
-  analogWrite(MOTOR_R_ENABLE_PIN, motorRSpeed);
-  analogWrite(MOTOR_B_ENABLE_PIN, motorBSpeed);
 
   servoF.attach(SERVO_FRONT_PIN, SERVO_FRONT_MIN_PWM, SERVO_FRONT_MAX_PWM);  // attaches the servo on pin 9 to the servo object 
   servoB.attach(SERVO_BACK_PIN, SERVO_BACK_MIN_PWM, SERVO_BACK_MAX_PWM);
@@ -116,6 +95,8 @@ void loop() {
   readColourSensors();
   setServos();
   readUSSensors();
+
+  motorLeft.driveForwards(120);
   
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState);
@@ -242,11 +223,7 @@ void setMotors()
 {
   if(overallState == STATE_OVERALL_SEARCH_BALL)
   {
-    motorLSpeed = MOTOR_LEFT_NORMAL_SPEED;
-    motorRSpeed = MOTOR_RIGHT_NORMAL_SPEED;
-    
-    motorBSpeed = MOTOR_BRUSHES_NORMAL_SPEED;
-    motorBrushes(FORWARDS);
+    motorBrushes.driveForwards(MOTOR_BRUSHES_NORMAL_SPEED);
 
     if(!MICRO_FRONT_Right && driveState != STATE_DRIVE_BACKOFF_LEFT_BACK)
     {
@@ -283,13 +260,13 @@ void setMotors()
     switch(driveState)
     {
       case STATE_DRIVE_FORWARDS:
-        motorLeft(FORWARDS);
-        motorRight(FORWARDS);
+        motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+        motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
         break;
 
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
-        motorLeft(BACKWARDS);
-        motorRight(BACKWARDS);
+        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
         if(driveTimer < millis() || !(IRFL_FRONT_Diff > IRFL_FRONT_Thresh || IRFR_FRONT_Diff > IRFR_FRONT_Thresh))
         {
@@ -299,8 +276,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BACKOFF_LEFT_LEFT:
-        motorLeft(BACKWARDS);
-        motorRight(FORWARDS);
+        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+        motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
         if(driveTimer < millis())
         {
@@ -309,8 +286,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BACKOFF_RIGHT_BACK:
-        motorLeft(BACKWARDS);
-        motorRight(BACKWARDS);
+        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
         if(driveTimer < millis() || !(IRFL_FRONT_Diff > IRFL_FRONT_Thresh || IRFR_FRONT_Diff > IRFR_FRONT_Thresh))
         {
@@ -320,8 +297,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
-        motorLeft(FORWARDS);
-        motorRight(BACKWARDS);
+        motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
         if(driveTimer < millis())
         {
@@ -330,8 +307,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_STOP:
-        motorLeft(STOP);
-        motorRight(STOP);
+        motorLeft.stop();
+        motorRight.stop();
 
         if(IRFL_FRONT_Diff > IRFL_FRONT_Thresh || IRFR_FRONT_Diff > IRFR_FRONT_Thresh)
         {
@@ -345,8 +322,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BEND_LEFT_LEFT:
-        motorLeft(STOP);
-        motorRight(FORWARDS);
+        motorLeft.stop();
+        motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
         if(!(IRFR_SIDE_Diff > IRFR_SIDE_Thresh))
         {
@@ -360,8 +337,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BEND_LEFT_STRAIGHT:
-        motorLeft(FORWARDS);
-        motorRight(FORWARDS);
+        motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+        motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
         if(!(IRFR_SIDE_Diff > IRFR_SIDE_Thresh))
         {
@@ -375,8 +352,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BEND_RIGHT:
-        motorLeft(FORWARDS);
-        motorRight(BACKWARDS);
+        motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
         if(driveTimer < millis() || !(IRFL_SIDE_Diff > IRFL_SIDE_Thresh))
         {
@@ -387,11 +364,7 @@ void setMotors()
   }
   else if(overallState == STATE_OVERALL_SEARCH_GOAL)
   {
-    motorLSpeed = MOTOR_LEFT_NORMAL_SPEED;
-    motorRSpeed = MOTOR_RIGHT_NORMAL_SPEED;
-
-    motorBSpeed = MOTOR_BRUSHES_NORMAL_SPEED;
-    motorBrushes(BACKWARDS);
+    motorBrushes.driveBackwards(MOTOR_BRUSHES_NORMAL_SPEED);
 
     if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
     {
@@ -404,8 +377,8 @@ void setMotors()
       switch(driveState)
       {
         case STATE_DRIVE_FORWARDS:
-          motorLeft(BACKWARDS);
-          motorRight(BACKWARDS);
+          motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
           if(!MICRO_BACK_Left)
           {
@@ -440,8 +413,8 @@ void setMotors()
           break;
 
         case STATE_DRIVE_BACKOFF_LEFT_BACK:
-          motorLeft(FORWARDS);
-          motorRight(FORWARDS);
+          motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
           if(driveTimer < millis() || !(IRBR_BACK_Diff > IRBR_BACK_Thresh || IRBR_BACK_Diff > IRBR_BACK_Thresh))
           {
@@ -451,8 +424,8 @@ void setMotors()
           break;
 
         case STATE_DRIVE_BACKOFF_LEFT_LEFT:
-          motorLeft(FORWARDS);
-          motorRight(BACKWARDS);
+          motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
           if(driveTimer < millis())
           {
@@ -461,8 +434,8 @@ void setMotors()
           break;
 
         case STATE_DRIVE_BACKOFF_RIGHT_BACK:
-          motorLeft(FORWARDS);
-          motorRight(FORWARDS);
+          motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
           if(driveTimer < millis() || !(IRBR_BACK_Diff > IRBR_BACK_Thresh || IRBR_BACK_Diff > IRBR_BACK_Thresh))
           {
@@ -472,8 +445,8 @@ void setMotors()
           break;
 
         case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
-          motorLeft(BACKWARDS);
-          motorRight(FORWARDS);
+          motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
           if(driveTimer < millis())
           {
@@ -482,8 +455,8 @@ void setMotors()
           break;
 
         case STATE_DRIVE_STOP:
-          motorLeft(STOP);
-          motorRight(STOP);
+          motorLeft.stop();
+          motorRight.stop();
 
           if(IRBR_BACK_Diff > IRBR_BACK_Thresh || IRBR_BACK_Diff > IRBR_BACK_Thresh)
           {
@@ -497,8 +470,8 @@ void setMotors()
           break;
 
         case STATE_DRIVE_BEND_LEFT:
-          motorLeft(FORWARDS);
-          motorRight(BACKWARDS);
+          motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
           if(driveTimer < millis() || !(IRBR_SIDE_Diff > IRBR_SIDE_Thresh))
           {
@@ -507,8 +480,8 @@ void setMotors()
           break;
 
         case STATE_DRIVE_BEND_RIGHT:
-          motorLeft(BACKWARDS);
-          motorRight(FORWARDS);
+          motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
           if(driveTimer < millis() || !(IRBL_SIDE_Diff > IRBL_SIDE_Thresh))
           {
@@ -520,16 +493,14 @@ void setMotors()
   }
   else if(overallState == STATE_OVERALL_ALIGN_GOAL)
   {
-    motorLSpeed = MOTOR_LEFT_GOAL_SPEED;
-    motorRSpeed = MOTOR_RIGHT_GOAL_SPEED;
-
+    motorBrushes.stop();
     readCamera();
 
     switch(goalState)
     {
       case STATE_GOAL_DRIVE_OVER_MAT:
-        motorLeft(BACKWARDS);
-        motorRight(BACKWARDS);
+        motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
 
         if(goalTimer < millis() || US_back_cm < US_BACK_GOAL_MIN_DISTANCE)
         {
@@ -547,8 +518,8 @@ void setMotors()
         break;
 
         case STATE_GOAL_ROTATE_LEFT:
-          motorLeft(FORWARDS);
-          motorRight(BACKWARDS);
+          motorLeft.driveForwards(MOTOR_LEFT_GOAL_SPEED);
+          motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
 
           if(CAM_direction == BEACON_CENTER || goalTimer < millis())
           {
@@ -563,8 +534,8 @@ void setMotors()
           break;
 
         case STATE_GOAL_ROTATE_RIGHT:
-          motorLeft(BACKWARDS);
-          motorRight(FORWARDS);
+          motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
+          motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
 
           if(CAM_direction == BEACON_CENTER || goalTimer < millis())
           {
@@ -579,8 +550,8 @@ void setMotors()
           break;
 
         case STATE_GOAL_BACKOFF:
-          motorLeft(FORWARDS);
-          motorRight(FORWARDS);
+          motorLeft.driveForwards(MOTOR_LEFT_GOAL_SPEED);
+          motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
 
           if(!(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON) || goalTimer < millis())
           {
@@ -589,38 +560,19 @@ void setMotors()
           break;
 
         case STATE_GOAL_KICK:
-          motorLeft(STOP);
-          motorRight(STOP);
+          motorLeft.stop();
+          motorRight.stop();
           break;
 
     }
   }
 
-  #ifdef MOTORS_ON
-    analogWrite(MOTOR_L_ENABLE_PIN, motorLSpeed);
-    analogWrite(MOTOR_R_ENABLE_PIN, motorRSpeed);
-    
-  #else
-    analogWrite(MOTOR_L_ENABLE_PIN, 0);
-    analogWrite(MOTOR_R_ENABLE_PIN, 0);
-    
-  #endif
-
-  #ifdef BRUSHES_ON
-    analogWrite(MOTOR_B_ENABLE_PIN, motorBSpeed);
-  #else
-    analogWrite(MOTOR_B_ENABLE_PIN, 0);
-  #endif
-
   #ifdef PLOT_PRINT_MOTORS_ON  
     PLOT("driveTimer", driveTimer);
-    PLOT("motorLSpeed", motorLSpeed);
-    PLOT("motorRSpeed", motorRSpeed);
-    PLOT("motorBSpeed", motorBSpeed);
   #endif
 }
 
-void motorLeft(int direction)
+/*void motorLeft(int direction)
 {
   if(direction == FORWARDS)
   {
@@ -687,7 +639,7 @@ void motorBrushes(int direction)
   #ifdef PLOT_PRINT_MOTORS_ON
     PLOT("motorBrushes", direction);
   #endif
-}
+}*/
 
 void readColourSensors()
 {

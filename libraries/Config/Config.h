@@ -1,16 +1,20 @@
 /*** Define debug level ***/
+
+#include "States.h"
+#include "Thresholds.h"
+
 #define	DEBUG_PRINT_OFF
-#define	PLOT_PRINT_OFF
+#define	PLOT_PRINT_ON
 
 #define MOTORS_ON
 #define BRUSHES_OFF
 
-#define PLOT_PRINT_STATUS_ON
+#define PLOT_PRINT_STATUS_OFF
 #define PLOT_PRINT_TOUCH_OFF
-#define PLOT_PRINT_IR_ON
-#define PLOT_PRINT_COLOUR_ON
+#define PLOT_PRINT_IR_OFF
+#define PLOT_PRINT_COLOUR_OFF
 #define PLOT_PRINT_SERVOS_OFF
-#define PLOT_PRINT_MOTORS_OFF
+#define PLOT_PRINT_MOTORS_ON
 #define PLOT_PRINT_CAMERA_OFF
 #define PLOT_PRINT_US_OFF
 
