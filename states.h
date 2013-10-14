@@ -4,7 +4,7 @@
 #define STATE_OVERALL_ALIGN_GOAL		2
 
 /*** Define drive states ***/
-#define	STATE_DRIVE_FORWARDS            0
+#define STATE_DRIVE_FORWARDS            0
 #define STATE_DRIVE_BACKWARDS           1
 #define STATE_DRIVE_BACKOFF_LEFT_BACK   2
 #define STATE_DRIVE_BACKOFF_LEFT_LEFT   3
@@ -59,9 +59,8 @@
 #define BALL_NONE						0
 #define BALL_RIGHT						1
 #define BALL_WRONG						2
-
-#define BALL_RED						0
-#define BALL_BLUE						1
+#define BALL_RED						1
+#define BALL_BLUE						2
 
 #define GREEN_MAT_OFF					0
 #define GREEN_MAT_ON					1

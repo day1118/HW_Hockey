@@ -2,7 +2,8 @@
 #define	DEBUG_PRINT_OFF
 #define	PLOT_PRINT_OFF
 
-#define MOTORS_ON  
+#define MOTORS_ON
+#define BRUSHES_OFF
 
 #define PLOT_PRINT_STATUS_ON
 #define PLOT_PRINT_TOUCH_OFF
@@ -10,10 +11,11 @@
 #define PLOT_PRINT_COLOUR_ON
 #define PLOT_PRINT_SERVOS_OFF
 #define PLOT_PRINT_MOTORS_OFF
-#define PLOT_PRINT_CAMERA_ON
-#define PLOT_PRINT_US_ON
+#define PLOT_PRINT_CAMERA_OFF
+#define PLOT_PRINT_US_OFF
 
-#define LED_READ_DELAY_TIME                 4
+#define LED_READ_DELAY_TIME                 1000
+#define LED_READ_DELAY                      delayMicroseconds(LED_READ_DELAY_TIME)
 #define CAMERA_DELAY_TIME                   20
 
 #define DESIRED_BALL_COLOUR                 BALL_RED
@@ -46,7 +48,7 @@
 #define IRFL_SIDE_PHOTOTRANSISTOR_PIN       A10
 #define IRFL_FRONT_PHOTOTRANSISTOR_PIN      A9
   
-#define GREEN_MAT_LEFT_RED_LED_PIN          24
+#define GREEN_MAT_LEFT_RED_LED_PIN          41
 #define GREEN_MAT_LEFT_GREEN_LED_PIN        26
 #define GREEN_MAT_LEFT_PHOTOTRANSISTOR_PIN  A12
 
@@ -94,8 +96,8 @@
 #define MOTOR_R_B_PIN		            	36
 #define MOTOR_R_ENABLE_PIN		    		6
 
-#define MOTOR_B_A_PIN		            	39
-#define MOTOR_B_B_PIN		            	38
+#define MOTOR_B_A_PIN		            	38
+#define MOTOR_B_B_PIN		            	39
 #define MOTOR_B_ENABLE_PIN		    		5
 
 #define ENCODER_LEFT_PIN					A2
