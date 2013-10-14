@@ -11,7 +11,7 @@
 
 #define PLOT_PRINT_STATUS_OFF
 #define PLOT_PRINT_TOUCH_OFF
-#define PLOT_PRINT_IR_OFF
+#define PLOT_PRINT_IR_ON
 #define PLOT_PRINT_COLOUR_OFF
 #define PLOT_PRINT_SERVOS_OFF
 #define PLOT_PRINT_MOTORS_ON
@@ -21,6 +21,8 @@
 #define LED_READ_DELAY_TIME                 1000
 #define LED_READ_DELAY                      delayMicroseconds(LED_READ_DELAY_TIME)
 #define CAMERA_DELAY_TIME                   20
+
+#define IR_FILTER_SIZE                      5
 
 #define DESIRED_BALL_COLOUR                 BALL_RED
 
