@@ -4,13 +4,13 @@
 #include "Thresholds.h"
 
 #define	DEBUG_PRINT_OFF
-#define	PLOT_PRINT_ON
+#define	PLOT_PRINT_OFF
 
 #define MOTORS_ON
-#define BRUSHES_OFF
+#define BRUSHES_ON
 
 #define PLOT_PRINT_STATUS_OFF
-#define PLOT_PRINT_TOUCH_OFF
+#define PLOT_PRINT_TOUCH_ON
 #define PLOT_PRINT_IR_ON
 #define PLOT_PRINT_COLOUR_OFF
 #define PLOT_PRINT_SERVOS_OFF
@@ -18,7 +18,7 @@
 #define PLOT_PRINT_CAMERA_OFF
 #define PLOT_PRINT_US_OFF
 
-#define LED_READ_DELAY_TIME                 1000
+#define LED_READ_DELAY_TIME                 500
 #define LED_READ_DELAY                      delayMicroseconds(LED_READ_DELAY_TIME)
 #define CAMERA_DELAY_TIME                   20
 
@@ -98,8 +98,8 @@
 #define MOTOR_L_B_PIN		            	34
 #define MOTOR_L_ENABLE_PIN		    		7
 
-#define MOTOR_R_A_PIN		            	37
-#define MOTOR_R_B_PIN		            	36
+#define MOTOR_R_A_PIN		            	36
+#define MOTOR_R_B_PIN		            	37
 #define MOTOR_R_ENABLE_PIN		    		6
 
 #define MOTOR_B_A_PIN		            	38

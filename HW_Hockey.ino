@@ -89,6 +89,8 @@ void setup() {
   servoB.attach(SERVO_BACK_PIN, SERVO_BACK_MIN_PWM, SERVO_BACK_MAX_PWM);
   servoK.attach(SERVO_KICK_PIN, SERVO_KICK_MIN_PWM, SERVO_KICK_MAX_PWM);
 
+  motorBrushes.stop();
+
   Serial.begin(115200);      // open the serial port at 9600 bps:
 
   DEBUG_PRINT("Starting...");
@@ -102,28 +104,13 @@ void loop() {
   readColourSensors();
   setServos();
   readUSSensors();
-
-  /*int IRFLF1 = IRFL.getFront();
-  int IRFLF2 = IRFL._frontDiff;
-
-  int IRFRF1 = IRFR.getFront();
-  int IRFRF2 = IRFR._frontDiff;
-
-  int IRFLS1 = IRFL.getSide();
-  int IRFLS2 = IRFL._sideDiff;
-
-  int IRFRS1 = IRFR.getSide();
-  int IRFRS2 = IRFR._sideDiff;*/
-
-  motorLeft.driveForwards(120);
-  
+ 
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState);
     PLOT("driveState", driveState);
     PLOT("goalState", goalState);
     PLOT("millis", millis());
   #endif
-  //PLOT_OVERRIDE("freeMemory", freeRam());
 }
 
 
