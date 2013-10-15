@@ -4,10 +4,10 @@
 #include "Thresholds.h"
 
 #define	DEBUG_PRINT_OFF
-#define	PLOT_PRINT_ON
+#define	PLOT_PRINT_OFF
 
-#define MOTORS_ON
-#define BRUSHES_ON
+#define MOTORS_OFF
+#define BRUSHES_OFF
 
 #define PLOT_PRINT_STATUS_ON
 #define PLOT_PRINT_TOUCH_ON_DETAIL

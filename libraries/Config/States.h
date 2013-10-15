@@ -2,6 +2,7 @@
 #define STATE_OVERALL_SEARCH_BALL       0
 #define STATE_OVERALL_SEARCH_GOAL       1
 #define STATE_OVERALL_ALIGN_GOAL		2
+#define STATE_OVERALL_AVOID_GOAL		3
 
 /*** Define drive states ***/
 #define STATE_DRIVE_FORWARDS            0
@@ -52,12 +53,14 @@
 #define STATE_GOAL_ROTATE_LEFT			1
 #define STATE_GOAL_ROTATE_RIGHT			2
 #define STATE_GOAL_BACKOFF				3
-#define STATE_GOAL_KICK					4
+#define STATE_GOAL_KICK_DELAY			4
+#define STATE_GOAL_KICK 				5
 
 #define TIMER_GOAL_DRIVE_OVER_MAT		1000
 #define TIMER_GOAL_ROTATE_LEFT			10000
 #define TIMER_GOAL_ROTATE_RIGHT			10000
 #define TIMER_GOAL_BACKOFF				2000
+#define TIMER_GOAL_KICK_DELAY			1000
 
 #define BALL_NONE						0
 #define BALL_RIGHT						1

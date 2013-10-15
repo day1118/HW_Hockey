@@ -71,10 +71,10 @@ void loop() {
   // Read each sensor in a loop
   readIRSensors();
   readTouchSensors();
-  setMotors();
   readColourSensors();
-  setServos();
   readUSSensors();
+  setMotors();
+  setServos();
  
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState);
@@ -118,43 +118,50 @@ void setMotors()
   {
     motorBrushes.driveForwards(MOTOR_BRUSHES_NORMAL_SPEED);
 
-    if(!TFR.on() && driveState != STATE_DRIVE_BACKOFF_LEFT_BACK)
+    if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
     {
-      driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
-      driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
+      //TODO - Handle avoiding goal.
+      overallState = STATE_OVERALL_AVOID_GOAL;
+      driveTimer = millis() + 3000;
+      driveState = STATE_DRIVE_STOP;
     }
-    else if(!TFL.on() && driveState != STATE_DRIVE_BACKOFF_RIGHT_BACK)
-    {
-      driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
-      driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
-    }
-    else if(IRFR.getFront() > IRFR_FRONT_Thresh && driveState != STATE_DRIVE_BACKOFF_LEFT_BACK)
-    {
-      driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
-      driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
-    }
-    else if(IRFL.getFront() > IRFL_FRONT_Thresh && driveState != STATE_DRIVE_BACKOFF_RIGHT_BACK)
-    {
-      driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
-      driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
-    }
-    else if(IRFL.getSide() > IRFL_SIDE_Thresh && driveState != STATE_DRIVE_BEND_RIGHT)
-    {
-      driveState = STATE_DRIVE_BEND_RIGHT;
-      driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT; 
-    }
-    else if(IRFR.getSide() > IRFR_SIDE_Thresh && driveState != STATE_DRIVE_BEND_LEFT_LEFT && driveState != STATE_DRIVE_BACKOFF_LEFT_BACK  && driveState != STATE_DRIVE_BACKOFF_LEFT_LEFT)
-    {
-      driveState = STATE_DRIVE_BEND_LEFT_LEFT;
-      driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT; 
-    }
-
 
     switch(driveState)
     {
       case STATE_DRIVE_FORWARDS:
         motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
         motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+        if(TFR.on())
+        {
+          driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
+          driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
+        }
+        else if(TFL.on())
+        {
+          driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+          driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+        }
+        else if(IRFR.getFront() > IRFR_FRONT_Thresh)
+        {
+          driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
+          driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
+        }
+        else if(IRFL.getFront() > IRFL_FRONT_Thresh)
+        {
+          driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+          driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+        }
+        else if(IRFL.getSide() > IRFL_SIDE_Thresh)
+        {
+          driveState = STATE_DRIVE_BEND_RIGHT;
+          driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT; 
+        }
+        else if(IRFR.getSide() > IRFR_SIDE_Thresh)
+        {
+          driveState = STATE_DRIVE_BEND_LEFT_LEFT;
+          driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT; 
+        }
         break;
 
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
@@ -203,11 +210,6 @@ void setMotors()
         motorLeft.stop();
         motorRight.stop();
 
-        if(IRFL.getFront() > IRFL_FRONT_Thresh || IRFR.getFront() > IRFR_FRONT_Thresh)
-        {
-          driveTimer = millis() + TIMER_DRIVE_STOP;
-        }
-
         if(driveTimer < millis())
         {
           driveState = STATE_DRIVE_FORWARDS;
@@ -244,7 +246,7 @@ void setMotors()
         }
         break;
 
-      case STATE_DRIVE_BEND_RIGHT:
+      case STATE_DRIVE_BEND_RIGHT:    // No two-part bending like going left.
         motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
         motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
@@ -273,12 +275,12 @@ void setMotors()
           motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
           motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-          if(!TBL.on())
+          if(TBL.on())
           {
             driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
             driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
           }
-          else if(!TBR.on())
+          else if(TBR.on())
           {
             driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
             driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
@@ -350,11 +352,6 @@ void setMotors()
         case STATE_DRIVE_STOP:
           motorLeft.stop();
           motorRight.stop();
-
-          if(IRBR.getFront() > IRBR_BACK_Thresh || IRBR.getFront() > IRBR_BACK_Thresh)
-          {
-            driveTimer = millis() + TIMER_DRIVE_STOP;
-          }
 
           if(driveTimer < millis())
           {
@@ -448,6 +445,19 @@ void setMotors()
 
           if(!(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON) || goalTimer < millis())
           {
+            goalState = STATE_GOAL_KICK_DELAY;
+            goalTimer = millis() + TIMER_GOAL_KICK_DELAY;
+          }
+          break;
+
+        case STATE_GOAL_KICK_DELAY:
+          motorLeft.stop();
+          motorRight.stop();
+
+          if(goalTimer < millis())
+          {
+            servoTimer = millis() + TIMER_SERVO_KICK_1_DELAY;
+            servoState = STATE_SERVO_KICK_1_DELAY;
             goalState = STATE_GOAL_KICK;
           }
           break;
@@ -457,6 +467,19 @@ void setMotors()
           motorRight.stop();
           break;
 
+    }
+  }
+  else if(overallState == STATE_OVERALL_AVOID_GOAL)
+  {
+    switch(driveState)
+    {
+      case STATE_DRIVE_STOP:
+        if(driveTimer < millis())
+        {
+          overallState = STATE_OVERALL_SEARCH_BALL;
+          driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
+          driveTimer = TIMER_DRIVE_BACKOFF_LEFT_BACK;
+        }
     }
   }
 
@@ -511,6 +534,12 @@ void setServos()
         servoTimer = millis() + TIMER_SERVO_WRONG_BALL;
         servoState = STATE_SERVO_WRONG_BALL;
       }
+      else if(ballType == BALL_NONE)
+      {
+        servoState = STATE_SERVO_SERACH;
+        overallState = STATE_OVERALL_SEARCH_BALL;
+        driveState = STATE_DRIVE_FORWARDS;
+      }
 
       if(servoTimer < millis())
       {
@@ -527,16 +556,16 @@ void setServos()
 
       if(ballType == BALL_WRONG)
       {
+        overallState = STATE_OVERALL_SEARCH_BALL;
+        driveState = STATE_DRIVE_FORWARDS;
         servoTimer = millis() + TIMER_SERVO_WRONG_BALL;
         servoState = STATE_SERVO_WRONG_BALL;
       }
-
-      // This operation should be done by the overallState. This is just for testing.
-      //if(servoTimer < millis())
-      if(overallState == STATE_OVERALL_ALIGN_GOAL && goalState == STATE_GOAL_KICK)
+      else if(ballType == BALL_NONE)
       {
-        servoTimer = millis() + TIMER_SERVO_KICK_1_DELAY;
-        servoState = STATE_SERVO_KICK_1_DELAY;
+        servoState = STATE_SERVO_SERACH;
+        overallState = STATE_OVERALL_SEARCH_BALL;
+        driveState = STATE_DRIVE_FORWARDS;
       }
       break;
 
@@ -619,7 +648,9 @@ int determineBallType()
     tempBallColour = BALL_NONE;
   }
 
-  if(DESIRED_BALL_COLOUR == tempBallColour)
+  if(tempBallColour == BALL_NONE)
+    tempBallType = BALL_NONE;
+  else if(tempBallColour == DESIRED_BALL_COLOUR)
     tempBallType = BALL_RIGHT;
   else
     tempBallType = BALL_WRONG;
