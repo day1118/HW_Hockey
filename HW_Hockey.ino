@@ -7,6 +7,7 @@
   #include "Motors.h"
   #include "Filter.h"
   #include "IRSensor.h"
+  #include "ColourSensor.h"
 
   #include <Servo.h> 
   #include <NewPing.h> 
@@ -66,19 +67,11 @@ IRSensor IRFR("IRFR", IRFR_IR_LED_PIN, IRFR_FRONT_PHOTOTRANSISTOR_PIN, IRFR_SIDE
 IRSensor IRBL("IRBL", IRBL_IR_LED_PIN, IRBL_BACK_PHOTOTRANSISTOR_PIN, IRBL_SIDE_PHOTOTRANSISTOR_PIN);
 IRSensor IRBR("IRBR", IRBR_IR_LED_PIN, IRBR_BACK_PHOTOTRANSISTOR_PIN, IRBR_SIDE_PHOTOTRANSISTOR_PIN);
 
-void setup() {
-	// Set IR pins as outputs
-  pinMode(IRFL_IR_LED_PIN, OUTPUT);
-  pinMode(IRFR_IR_LED_PIN, OUTPUT);
-  pinMode(IRBL_IR_LED_PIN, OUTPUT);
-  pinMode(IRBR_IR_LED_PIN, OUTPUT);
+ColourSensor GML("GML", GREEN_MAT_LEFT_RED_LED_PIN, GREEN_MAT_LEFT_GREEN_LED_PIN, GREEN_MAT_LEFT_PHOTOTRANSISTOR_PIN);
+ColourSensor GMR("GMR", GREEN_MAT_RIGHT_RED_LED_PIN, GREEN_MAT_RIGHT_GREEN_LED_PIN, GREEN_MAT_RIGHT_PHOTOTRANSISTOR_PIN);
+ColourSensor BALL("BALL", BALL_COLOUR_RED_LED_PIN, BALL_COLOUR_IR_LED_PIN, BALL_COLOUR_PHOTOTRANSISTOR_PIN);
 
-  pinMode(GREEN_MAT_LEFT_RED_LED_PIN, OUTPUT);
-  pinMode(GREEN_MAT_LEFT_GREEN_LED_PIN, OUTPUT);
-  pinMode(GREEN_MAT_RIGHT_RED_LED_PIN, OUTPUT);
-  pinMode(GREEN_MAT_RIGHT_GREEN_LED_PIN, OUTPUT);
-  pinMode(BALL_COLOUR_RED_LED_PIN, OUTPUT);
-  pinMode(BALL_COLOUR_IR_LED_PIN, OUTPUT);
+void setup() {
 
   pinMode(CAMERA_CLK_PIN, OUTPUT);
   pinMode(CAMERA_SI_PIN, OUTPUT);
@@ -549,141 +542,23 @@ void setMotors()
   #endif
 }
 
-/*void motorLeft(int direction)
-{
-  if(direction == FORWARDS)
-  {
-    digitalWrite(MOTOR_L_A_PIN, HIGH);
-    digitalWrite(MOTOR_L_B_PIN, LOW);
-  }
-  else if(direction == BACKWARDS)
-  {
-    digitalWrite(MOTOR_L_A_PIN, LOW);
-    digitalWrite(MOTOR_L_B_PIN, HIGH); 
-  }
-  else
-  {
-    digitalWrite(MOTOR_L_A_PIN, LOW);
-    digitalWrite(MOTOR_L_B_PIN, LOW); 
-  }
-
-  #ifdef PLOT_PRINT_MOTORS_ON
-    PLOT("motorLeft", direction);
-  #endif
-}
- 
-void motorRight(int direction)
-{
-  if(direction == FORWARDS)
-  {
-    digitalWrite(MOTOR_R_A_PIN, LOW);
-    digitalWrite(MOTOR_R_B_PIN, HIGH);
-  }
-  else if(direction == BACKWARDS)
-  {
-    digitalWrite(MOTOR_R_A_PIN, HIGH);
-    digitalWrite(MOTOR_R_B_PIN, LOW);
-  } 
-  else
-  {
-    digitalWrite(MOTOR_R_A_PIN, LOW);
-    digitalWrite(MOTOR_R_B_PIN, LOW);
-  }
-
-  #ifdef PLOT_PRINT_MOTORS_ON
-    PLOT("motorRight", direction);
-  #endif
-}
-
-void motorBrushes(int direction)
-{
-  if(direction == FORWARDS)
-  {
-    digitalWrite(MOTOR_B_A_PIN, LOW);
-    digitalWrite(MOTOR_B_B_PIN, HIGH);
-  }
-  else if(direction == BACKWARDS)
-  {
-    digitalWrite(MOTOR_B_A_PIN, HIGH);
-    digitalWrite(MOTOR_B_B_PIN, LOW);
-  } 
-  else
-  {
-    digitalWrite(MOTOR_B_A_PIN, LOW);
-    digitalWrite(MOTOR_B_B_PIN, LOW);
-  }
-
-  #ifdef PLOT_PRINT_MOTORS_ON
-    PLOT("motorBrushes", direction);
-  #endif
-}*/
-
 void readColourSensors()
 {
-  digitalWrite(GREEN_MAT_LEFT_RED_LED_PIN, HIGH);
-  LED_READ_DELAY;
-  GML_RED_On = analogRead(GREEN_MAT_LEFT_PHOTOTRANSISTOR_PIN);
-  digitalWrite(GREEN_MAT_LEFT_RED_LED_PIN, LOW);
+  GML.update();
+  GMR.update();
+  BALL.update();
 
-  digitalWrite(GREEN_MAT_LEFT_GREEN_LED_PIN, HIGH);
-  LED_READ_DELAY;
-  GML_GREEN_On = analogRead(GREEN_MAT_LEFT_PHOTOTRANSISTOR_PIN);
-  digitalWrite(GREEN_MAT_LEFT_GREEN_LED_PIN, LOW);
-
-  digitalWrite(GREEN_MAT_RIGHT_RED_LED_PIN, HIGH);
-  LED_READ_DELAY;
-  GMR_RED_On = analogRead(GREEN_MAT_RIGHT_PHOTOTRANSISTOR_PIN);
-  digitalWrite(GREEN_MAT_RIGHT_RED_LED_PIN, LOW);
-
-  digitalWrite(GREEN_MAT_RIGHT_GREEN_LED_PIN, HIGH);
-  LED_READ_DELAY;
-  GMR_GREEN_On = analogRead(GREEN_MAT_RIGHT_PHOTOTRANSISTOR_PIN);
-  digitalWrite(GREEN_MAT_RIGHT_GREEN_LED_PIN, LOW);
-
-  digitalWrite(BALL_COLOUR_RED_LED_PIN, HIGH);
-  LED_READ_DELAY;
-  BALL_RED_On = analogRead(BALL_COLOUR_PHOTOTRANSISTOR_PIN);
-  digitalWrite(BALL_COLOUR_RED_LED_PIN, LOW);
-
-  digitalWrite(BALL_COLOUR_IR_LED_PIN, HIGH);
-  LED_READ_DELAY;
-  BALL_IR_On = analogRead(BALL_COLOUR_PHOTOTRANSISTOR_PIN);
-  digitalWrite(BALL_COLOUR_IR_LED_PIN, LOW);
-
-  LED_READ_DELAY;
-  BALL_Off = analogRead(BALL_COLOUR_PHOTOTRANSISTOR_PIN);
-
-  GML_RED_Diff = GML_RED_On - GML_Off;
-  GML_GREEN_Diff = GML_GREEN_On - GML_Off;
-  GMR_RED_Diff = GMR_RED_On - GMR_Off;
-  GMR_GREEN_Diff = GMR_GREEN_On - GMR_Off;
-  BALL_RED_Diff = BALL_RED_On - BALL_Off;
-  BALL_IR_Diff = BALL_IR_On - BALL_Off;
+  GML_RED_Diff = GML.getColour1();
+  GML_GREEN_Diff = GML.getColour2();
+  GMR_RED_Diff = GMR.getColour1();
+  GMR_GREEN_Diff = GMR.getColour2();
+  BALL_RED_Diff = BALL.getColour1();
+  BALL_IR_Diff = BALL.getColour2();
 
   ballType = determineBallType();
 
   greenMatLeftState = determineGMLState();
   greenMatRightState = determineGMRState();
-
-  #ifdef PLOT_PRINT_COLOUR_ON
-    PLOT("GML_Off", GML_Off);
-    PLOT("GML_RED_On", GML_RED_On);
-    PLOT("GML_GREEN_On", GML_GREEN_On);
-    PLOT("GML_RED_Diff", GML_RED_Diff);
-    PLOT("GML_GREEN_Diff", GML_GREEN_Diff);
-
-    PLOT("GMR_Off", GMR_Off);
-    PLOT("GMR_RED_On", GMR_RED_On);
-    PLOT("GMR_GREEN_On", GMR_GREEN_On);
-    PLOT("GMR_RED_Diff", GMR_RED_Diff);
-    PLOT("GMR_GREEN_Diff", GMR_GREEN_Diff);
-
-    PLOT("BALL_Off", BALL_Off);
-    PLOT("BALL_RED_On", BALL_RED_On);
-    PLOT("BALL_IR_On", BALL_IR_On);
-    PLOT("BALL_RED_Diff", BALL_RED_Diff);
-    PLOT("BALL_IR_Diff", BALL_IR_Diff);
-  #endif
 }
 
 void setServos()

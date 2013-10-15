@@ -1,41 +1,31 @@
 #include "Arduino.h"
+#include "Config.h"
 
-class IRDuo
+class ColourSensor
 {
 public:
-	IRDuo(int ledpin, int fpin, int spin);
-	void read();
-	int getf();
-	int gets();	
+	ColourSensor(String name, int pinLED1, int pinLED2, int pinPhototransistor);
+	void update();
+	int getColour1();
+	int getColour2();	
+
 //private:
-	int _ledpin;
-	int _fpin;
-	int _spin;
+	int _pinLED1;
+	int _pinLED2;
+	int _pinPhototransistor;
+	int _filterSize;
+	String _name;
 
-	int _fval;
-	int _sval;
+	int _off;
+	int _colour1On;
+	int _colour2On;
 
-	int _foff;
-	int _fon;
+	int _colour1Diff;
+	int _colour2Diff;
 
-	int _soff;
-	int _son;
-};
+	int _colour1DiffFilter;
+	int _colour2DiffFilter;
 
-class PT2Val
-{
-
-public:
-	PT2Val(int led1pin, int led2pin, int ptpin);
-	void read();
-	int dif1();
-	int dif2();
-//private:
-	int _led1pin;
-	int _led2pin;
-	int _ptpin;
-
-	int _valoff;
-	int _val1on;
-	int _val2on;
+	long _colour1DiffFilterLarge;
+	long _colour2DiffFilterLarge;
 };

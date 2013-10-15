@@ -4,15 +4,15 @@
 #include "Thresholds.h"
 
 #define	DEBUG_PRINT_OFF
-#define	PLOT_PRINT_OFF
+#define	PLOT_PRINT_ON
 
 #define MOTORS_ON
 #define BRUSHES_ON
 
-#define PLOT_PRINT_STATUS_OFF
-#define PLOT_PRINT_TOUCH_ON
-#define PLOT_PRINT_IR_ON
-#define PLOT_PRINT_COLOUR_OFF
+#define PLOT_PRINT_STATUS_ON
+#define PLOT_PRINT_TOUCH_OFF
+#define PLOT_PRINT_IR_OFF
+#define PLOT_PRINT_COLOUR_ON
 #define PLOT_PRINT_SERVOS_OFF
 #define PLOT_PRINT_MOTORS_ON
 #define PLOT_PRINT_CAMERA_OFF
@@ -23,6 +23,7 @@
 #define CAMERA_DELAY_TIME                   20
 
 #define IR_FILTER_SIZE                      5
+#define COLOUR_FILTER_SIZE                      5
 
 #define DESIRED_BALL_COLOUR                 BALL_RED
 
@@ -102,8 +103,8 @@
 #define MOTOR_R_B_PIN		            	37
 #define MOTOR_R_ENABLE_PIN		    		6
 
-#define MOTOR_B_A_PIN		            	38
-#define MOTOR_B_B_PIN		            	39
+#define MOTOR_B_A_PIN		            	39
+#define MOTOR_B_B_PIN		            	38
 #define MOTOR_B_ENABLE_PIN		    		5
 
 #define ENCODER_LEFT_PIN					A2

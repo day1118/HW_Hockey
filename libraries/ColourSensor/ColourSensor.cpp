@@ -1,68 +1,75 @@
-#include "ir.h"
+#include "ColourSensor.h"
 
-IRDuo::IRDuo(int ledpin, int fpin, int spin){
-	_ledpin = ledpin;
-	_fpin = fpin;
-	_spin = spin;
+ColourSensor::ColourSensor(String name, int pinLED1, int pinLED2, int pinPhototransistor){
+	_pinLED1 = pinLED1;
+	_pinLED2 = pinLED2;
+	_pinPhototransistor = pinPhototransistor;
+	_filterSize = COLOUR_FILTER_SIZE;
+	_name = name;
 
-	_fval = 0;
-	_sval = 0;
+	_off = 0;
+	_colour1On = 0;
+	_colour2On = 0;
 
-	pinMode(_ledpin, OUTPUT);
-	pinMode(_fpin, INPUT);
-	pinMode(_spin, INPUT);
+	_colour1Diff = 0;
+	_colour2Diff = 0;
 
+	_colour1DiffFilter = 0;
+	_colour2DiffFilter = 0;
+
+	_colour1DiffFilterLarge = 0;
+	_colour2DiffFilterLarge = 0;
+
+	pinMode(_pinLED1, OUTPUT);
+	pinMode(_pinLED2, OUTPUT);
+	pinMode(_pinPhototransistor, INPUT);
 }
 
-void IRDuo::read(){
-	_foff = analogRead(_fpin);
-	_soff = analogRead(_spin);
-	digitalWrite(_ledpin, HIGH);
-	delay(4);
-	_fon = analogRead(_fpin);
-	_son = analogRead(_spin);
-	digitalWrite(_ledpin, LOW);
+void ColourSensor::update(){
+	_off = analogRead(_pinPhototransistor);
+
+	digitalWrite(_pinLED1, HIGH);
+	LED_READ_DELAY;
+	_colour1On = analogRead(_pinPhototransistor);
+	digitalWrite(_pinLED1, LOW);
+
+	digitalWrite(_pinLED2, HIGH);
+	LED_READ_DELAY;
+	_colour2On = analogRead(_pinPhototransistor);
+	digitalWrite(_pinLED2, LOW);
+
+	_colour1Diff = _colour1On - _off;
+	_colour2Diff = _colour2On - _off;
+
+	_colour1DiffFilterLarge -= _colour1DiffFilter;
+	_colour1DiffFilterLarge += _colour1Diff;
+	_colour1DiffFilter = _colour1DiffFilterLarge/_filterSize;
+
+	_colour2DiffFilterLarge -= _colour2DiffFilter;
+	_colour2DiffFilterLarge += _colour2Diff;
+	_colour2DiffFilter = _colour2DiffFilterLarge/_filterSize;
+
+  	#ifdef PLOT_PRINT_COLOUR_ON_DETAIL
+  		PLOT(_name + "_OFF", _off);
+
+	    PLOT(_name + "_COLOUR1_ON", _colour1On);
+		PLOT(_name + "_COLOUR1_DIFF", _colour1Diff);
+		PLOT(_name + "_COLOUR1_DIFF_FILTER", _colour1DiffFilter);
+
+	    PLOT(_name + "_COLOUR2_ON", _colour2On);
+	    PLOT(_name + "_COLOUR2_DIFF", _colour2Diff);
+		PLOT(_name + "_COLOUR2_DIFF_FILTER", _colour2DiffFilter);
+    #endif
+
+	#ifdef PLOT_PRINT_COLOUR_ON
+		PLOT(_name + "_COLOUR1_DIFF_FILTER", _colour1DiffFilter);
+		PLOT(_name + "_COLOUR2_DIFF_FILTER", _colour2DiffFilter);
+    #endif
 }
 
-int IRDuo::getf(){
-	return _fon-_foff;
+int ColourSensor::getColour1(){
+	return _colour1DiffFilter;
 }
-int IRDuo::gets(){
-	return _son-_soff;
-}
-
-PT2Val::PT2Val(int led1pin, int led2pin, int ptpin){
-	_led1pin = led1pin;
-	_led2pin = led2pin;
-	_ptpin = ptpin;
-
-	int _valoff = 0;
-	int _val1on = 0;
-	int _val2on = 0;
-
-	pinMode(_led1pin, OUTPUT);
-	pinMode(_led2pin, OUTPUT);
-	pinMode(_ptpin, INPUT);
-}
-
-void PT2Val::read(){
-
-	_valoff = analogRead(_ptpin);
-	digitalWrite(_led1pin, HIGH);
-	delay(4);
-	_val1on = analogRead(_ptpin);
-	digitalWrite(_led1pin, LOW);
-	delay(4);
-	digitalWrite(_led2pin, HIGH);
-	delay(4);
-	_val2on = analogRead(_ptpin);
-	digitalWrite(_led2pin, LOW);
-}
-
-int PT2Val::dif1(){
-	return _val1on - _valoff;
-}
-
-int PT2Val::dif2(){
-	return _val2on - _valoff;
+int ColourSensor::getColour2(){
+	return _colour2DiffFilter;
 }
