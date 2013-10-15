@@ -102,6 +102,7 @@ void loop() {
     PLOT("overallState", overallState);
     PLOT("driveState", driveState);
     PLOT("goalState", goalState);
+    PLOT("servoState", servoState);
     PLOT("millis", millis());
   #endif
 }
@@ -694,8 +695,6 @@ void setServos()
     PLOT("servoFPos", servoFPos);
     PLOT("servoBPos", servoBPos);
     PLOT("servoKPos", servoKPos);
-
-    PLOT("servoState", servoState);
     PLOT("servoTimer", servoTimer);
   #endif
 }
@@ -703,7 +702,7 @@ void setServos()
 int determineBallType()
 {
   int tempBallColour;
-  int tempBallColour2 = BALL_NONE;
+  int tempBallType;
 
   if(BALL_IR_Diff > BALL_IR_Thresh)
   {
@@ -713,106 +712,61 @@ int determineBallType()
       tempBallColour = BALL_BLUE;
   }
   else
+  {
     tempBallColour = BALL_NONE;
+  }
 
   if(DESIRED_BALL_COLOUR == tempBallColour)
-    tempBallColour2 = BALL_RIGHT;
+    tempBallType = BALL_RIGHT;
   else
-    tempBallColour2 = BALL_WRONG;
-
-  if(tempBallColour == memBallColour)
-  {
-    if(!(ballCounter > (5)))
-      ballCounter++;
-  }
-  else
-  {
-    if(ballCounter > 0)
-      ballCounter--;
-    else
-      memBallColour = tempBallColour;
-  }
-
-  int ballColour = BALL_NONE;
-  if(ballCounter >= BALL_COUNTER_TRHESH && memBallColour == tempBallColour2)
-    ballColour = tempBallColour2;
+    tempBallType = BALL_WRONG;
 
   #ifdef PLOT_PRINT_COLOUR_ON
+    PLOT("tempBallType", tempBallType);
     PLOT("tempBallColour", tempBallColour);
-    PLOT("tempBallColour2", tempBallColour2);
-    PLOT("memBallColour", memBallColour);
-    PLOT("ballCounter", ballCounter);
-    PLOT("ballColour", ballColour);
   #endif  
 
-  return ballColour;
+  return tempBallType;
 }
 
 int determineGMLState()
 {
-  int greenMatLeftState, greenMatLeftStateRaw;
+  int tempGreenMatLeftState;
 
   if(GML_GREEN_Diff < GML_GREEN_Thres && GML_RED_Diff < GML_RED_Thres)
   {
-    greenMatLeftStateRaw = GREEN_MAT_ON;
-    greenMatLeftCount++;
+    tempGreenMatLeftState = GREEN_MAT_ON;
   }
   else
   {
-    greenMatLeftStateRaw = GREEN_MAT_OFF;
-    greenMatLeftCount--;
+    tempGreenMatLeftState = GREEN_MAT_OFF;
   }
 
-  if(greenMatLeftCount > GM_FILTER_SIZE)    
-    greenMatLeftCount = GM_FILTER_SIZE;
-  if(greenMatLeftCount < 0)    
-    greenMatLeftCount = 0;
-
-  if(greenMatLeftCount > GM_FILTER_SIZE/2)
-    greenMatLeftState = GREEN_MAT_ON;
-  else
-    greenMatLeftState = GREEN_MAT_OFF;
-
   #ifdef PLOT_PRINT_COLOUR_ON
-    PLOT("greenMatLeftStateRaw", greenMatLeftStateRaw);
-    PLOT("greenMatLeftState", greenMatLeftState);
+    PLOT("tempGreenMatLeftState", tempGreenMatLeftState);
   #endif  
 
-  return greenMatLeftState;
+  return tempGreenMatLeftState;
 }
 
 int determineGMRState()
 {
-  int greenMatRightStateTemp, greenMatRightStateRaw;
+  int tempGreenMatRightState;
 
   if(GMR_GREEN_Diff < GMR_GREEN_Thres && GMR_RED_Diff < GMR_RED_Thres)
   {
-    greenMatRightStateRaw = GREEN_MAT_ON;
-    greenMatRightCount++;
+    tempGreenMatRightState = GREEN_MAT_ON;
   }
   else
   {
-    greenMatRightStateRaw = GREEN_MAT_OFF;
-    greenMatRightCount--;
+    tempGreenMatRightState = GREEN_MAT_OFF;
   }
 
-  if(greenMatRightCount > GM_FILTER_SIZE)    
-    greenMatRightCount = GM_FILTER_SIZE;
-
-  if(greenMatRightCount < 0)    
-    greenMatRightCount = 0;
-
-  if(greenMatRightCount > GM_FILTER_SIZE/2)
-    greenMatRightStateTemp = GREEN_MAT_ON;
-  else
-    greenMatRightStateTemp = GREEN_MAT_OFF;
-
   #ifdef PLOT_PRINT_COLOUR_ON
-    PLOT("greenMatRightStateRaw", greenMatRightStateRaw);
-    PLOT("greenMatRightStateTemp", greenMatRightStateTemp);
+    PLOT("tempGreenMatRightState", tempGreenMatRightState);
   #endif  
 
-  return greenMatRightStateTemp;
+  return tempGreenMatRightState;
 }
 
 int readCamera()
