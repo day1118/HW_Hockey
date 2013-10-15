@@ -10,7 +10,7 @@
 #define BRUSHES_ON
 
 #define PLOT_PRINT_STATUS_ON
-#define PLOT_PRINT_TOUCH_OFF
+#define PLOT_PRINT_TOUCH_ON_DETAIL
 #define PLOT_PRINT_IR_OFF
 #define PLOT_PRINT_COLOUR_ON
 #define PLOT_PRINT_SERVOS_OFF
@@ -23,7 +23,8 @@
 #define CAMERA_DELAY_TIME                   20
 
 #define IR_FILTER_SIZE                      5
-#define COLOUR_FILTER_SIZE                      5
+#define COLOUR_FILTER_SIZE                  5
+#define TOUCH_SENSOR_FILTER_SIZE            5
 
 #define DESIRED_BALL_COLOUR                 BALL_RED
 

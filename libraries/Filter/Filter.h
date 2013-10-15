@@ -1,8 +1,9 @@
 #include "Arduino.h"
+#include "Config.h"
 
 class Filter{
 public:
-	Filter(int thresh);
+	Filter(int size);
 	void update(bool newState);
 	bool on();
 	unsigned long getTimeSinceChange();
@@ -10,6 +11,6 @@ public:
 private:
 	int _counter;
 	bool _active;
-	int _thresh;
+	int _size;
 	unsigned long _changeTime;
 };

@@ -5,9 +5,9 @@
  
   #include "Config.h"
   #include "Motors.h"
-  #include "Filter.h"
   #include "IRSensor.h"
   #include "ColourSensor.h"
+  #include "TouchSensor.h"
 
   #include <Servo.h> 
   #include <NewPing.h> 
@@ -16,8 +16,24 @@ NewPing US_back(BACK_ULTRASONIC_SENSOR_TRIG, BACK_ULTRASONIC_SENSOR_ECHO, MAX_UL
 NewPing US_front(FRONT_ULTRASONIC_SENSOR_TRIG, FRONT_ULTRASONIC_SENSOR_ECHO, MAX_ULTRASONIC_DISTANCE_CM);
 
 Servo servoF, servoB, servoK;
- 
-int MICRO_FRONT_Left, MICRO_FRONT_Right, MICRO_BACK_Left, MICRO_BACK_Right;
+
+Motor motorLeft("MOTOR_LEFT", MOTOR_L_A_PIN, MOTOR_L_B_PIN, MOTOR_L_ENABLE_PIN);
+Motor motorRight("MOTOR_RIGHT", MOTOR_R_A_PIN, MOTOR_R_B_PIN, MOTOR_R_ENABLE_PIN);
+Motor motorBrushes("MOTOR_BRUSHES", MOTOR_B_A_PIN, MOTOR_B_B_PIN, MOTOR_B_ENABLE_PIN);
+
+IRSensor IRFL("IRFL", IRFL_IR_LED_PIN, IRFL_FRONT_PHOTOTRANSISTOR_PIN, IRFL_SIDE_PHOTOTRANSISTOR_PIN);
+IRSensor IRFR("IRFR", IRFR_IR_LED_PIN, IRFR_FRONT_PHOTOTRANSISTOR_PIN, IRFR_SIDE_PHOTOTRANSISTOR_PIN);
+IRSensor IRBL("IRBL", IRBL_IR_LED_PIN, IRBL_BACK_PHOTOTRANSISTOR_PIN, IRBL_SIDE_PHOTOTRANSISTOR_PIN);
+IRSensor IRBR("IRBR", IRBR_IR_LED_PIN, IRBR_BACK_PHOTOTRANSISTOR_PIN, IRBR_SIDE_PHOTOTRANSISTOR_PIN);
+
+ColourSensor GML("GML", GREEN_MAT_LEFT_RED_LED_PIN, GREEN_MAT_LEFT_GREEN_LED_PIN, GREEN_MAT_LEFT_PHOTOTRANSISTOR_PIN);
+ColourSensor GMR("GMR", GREEN_MAT_RIGHT_RED_LED_PIN, GREEN_MAT_RIGHT_GREEN_LED_PIN, GREEN_MAT_RIGHT_PHOTOTRANSISTOR_PIN);
+ColourSensor BALL("BALL", BALL_COLOUR_RED_LED_PIN, BALL_COLOUR_IR_LED_PIN, BALL_COLOUR_PHOTOTRANSISTOR_PIN);
+
+TouchSensor TFL("TFL", FRONT_LEFT_TOUCH_SENSOR);
+TouchSensor TFR("TFR", FRONT_RIGHT_TOUCH_SENSOR);
+TouchSensor TBL("TBL", BACK_LEFT_TOUCH_SENSOR);
+TouchSensor TBR("TBR", BACK_RIGHT_TOUCH_SENSOR);
 
 int overallState = STATE_OVERALL_SEARCH_BALL;
 int driveState = STATE_DRIVE_FORWARDS;
@@ -32,21 +48,6 @@ unsigned long driveTimer = 0, servoTimer = 0, goalTimer = 0;
 
 unsigned int US_back_cm;
 unsigned int US_front_cm;
-
-int averageCount = 1;
-
-Motor motorLeft("MOTOR_LEFT", MOTOR_L_A_PIN, MOTOR_L_B_PIN, MOTOR_L_ENABLE_PIN);
-Motor motorRight("MOTOR_RIGHT", MOTOR_R_A_PIN, MOTOR_R_B_PIN, MOTOR_R_ENABLE_PIN);
-Motor motorBrushes("MOTOR_BRUSHES", MOTOR_B_A_PIN, MOTOR_B_B_PIN, MOTOR_B_ENABLE_PIN);
-
-IRSensor IRFL("IRFL", IRFL_IR_LED_PIN, IRFL_FRONT_PHOTOTRANSISTOR_PIN, IRFL_SIDE_PHOTOTRANSISTOR_PIN);
-IRSensor IRFR("IRFR", IRFR_IR_LED_PIN, IRFR_FRONT_PHOTOTRANSISTOR_PIN, IRFR_SIDE_PHOTOTRANSISTOR_PIN);
-IRSensor IRBL("IRBL", IRBL_IR_LED_PIN, IRBL_BACK_PHOTOTRANSISTOR_PIN, IRBL_SIDE_PHOTOTRANSISTOR_PIN);
-IRSensor IRBR("IRBR", IRBR_IR_LED_PIN, IRBR_BACK_PHOTOTRANSISTOR_PIN, IRBR_SIDE_PHOTOTRANSISTOR_PIN);
-
-ColourSensor GML("GML", GREEN_MAT_LEFT_RED_LED_PIN, GREEN_MAT_LEFT_GREEN_LED_PIN, GREEN_MAT_LEFT_PHOTOTRANSISTOR_PIN);
-ColourSensor GMR("GMR", GREEN_MAT_RIGHT_RED_LED_PIN, GREEN_MAT_RIGHT_GREEN_LED_PIN, GREEN_MAT_RIGHT_PHOTOTRANSISTOR_PIN);
-ColourSensor BALL("BALL", BALL_COLOUR_RED_LED_PIN, BALL_COLOUR_IR_LED_PIN, BALL_COLOUR_PHOTOTRANSISTOR_PIN);
 
 void setup() {
 
@@ -84,15 +85,6 @@ void loop() {
   #endif
 }
 
-int readDigitalSensor(int pin, int averageCount)
-{
-  int value = 0;
-  int i = 0;
-  for(i = 0; i < averageCount; i++)
-      value += digitalRead(pin);
-  return value/averageCount;
-}
-
 void readIRSensors()
 {
   IRFL.update();
@@ -114,19 +106,10 @@ void readColourSensors()
 
 void readTouchSensors()
 {
-  MICRO_FRONT_Left = readDigitalSensor(FRONT_LEFT_TOUCH_SENSOR, averageCount);
-  MICRO_FRONT_Right = readDigitalSensor(FRONT_RIGHT_TOUCH_SENSOR, averageCount);
-
-  MICRO_BACK_Left = readDigitalSensor(BACK_LEFT_TOUCH_SENSOR, averageCount);
-  MICRO_BACK_Right = readDigitalSensor(BACK_RIGHT_TOUCH_SENSOR, averageCount);
-  
-  #ifdef PLOT_PRINT_TOUCH_ON
-    PLOT("MICRO_FRONT_Left", MICRO_FRONT_Left);
-    PLOT("MICRO_FRONT_Right", MICRO_FRONT_Right);
-  
-    PLOT("MICRO_BACK_Left", MICRO_BACK_Left);
-    PLOT("MICRO_BACK_Right", MICRO_BACK_Right);
-  #endif
+  TFL.update();
+  TFR.update();
+  TBL.update();
+  TBR.update();
 }
 
 void setMotors()
@@ -135,12 +118,12 @@ void setMotors()
   {
     motorBrushes.driveForwards(MOTOR_BRUSHES_NORMAL_SPEED);
 
-    if(!MICRO_FRONT_Right && driveState != STATE_DRIVE_BACKOFF_LEFT_BACK)
+    if(!TFR.on() && driveState != STATE_DRIVE_BACKOFF_LEFT_BACK)
     {
       driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
       driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
     }
-    else if(!MICRO_FRONT_Left && driveState != STATE_DRIVE_BACKOFF_RIGHT_BACK)
+    else if(!TFL.on() && driveState != STATE_DRIVE_BACKOFF_RIGHT_BACK)
     {
       driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
       driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
@@ -290,12 +273,12 @@ void setMotors()
           motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
           motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-          if(!MICRO_BACK_Left)
+          if(!TBL.on())
           {
             driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
             driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
           }
-          else if(!MICRO_BACK_Right)
+          else if(!TBR.on())
           {
             driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
             driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;

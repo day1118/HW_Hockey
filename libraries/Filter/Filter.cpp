@@ -1,16 +1,16 @@
 #include "Filter.h"
 
-Filter::Filter(int thresh){
+Filter::Filter(int size){
 	_counter = 0;
 	_active = LOW;
-	_thresh = thresh;
+	_size = size;
 	_changeTime = millis();
 }
 
 void Filter::update(bool newState){
 	if(_active == newState)
 	{
-		if(_counter < _thresh)
+		if(_counter < _size)
 			_counter++;
 	}
 	else
