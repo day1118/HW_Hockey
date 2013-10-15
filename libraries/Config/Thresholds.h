@@ -11,10 +11,10 @@
 #define BALL_IR_Thresh          180
 #define BALL_RED_Thresh         140
 
-#define GML_GREEN_Thres			80	
+#define GML_GREEN_Thres			60	
 #define GML_RED_Thres			200
 
-#define GMR_GREEN_Thres			200
+#define GMR_GREEN_Thres			180
 #define GMR_RED_Thres			200
 
 #define GM_FILTER_SIZE			5
