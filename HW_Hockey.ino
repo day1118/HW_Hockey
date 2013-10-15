@@ -8,6 +8,7 @@
   #include "IRSensor.h"
   #include "ColourSensor.h"
   #include "TouchSensor.h"
+  #include "Camera.h"
 
   #include <Servo.h> 
   #include <NewPing.h> 
@@ -34,6 +35,8 @@ TouchSensor TFL("TFL", FRONT_LEFT_TOUCH_SENSOR);
 TouchSensor TFR("TFR", FRONT_RIGHT_TOUCH_SENSOR);
 TouchSensor TBL("TBL", BACK_LEFT_TOUCH_SENSOR);
 TouchSensor TBR("TBR", BACK_RIGHT_TOUCH_SENSOR);
+
+Camera camera("CAM", CAMERA_SI_PIN, CAMERA_CLK_PIN, CAMERA_ANALOG_IN_PIN);
 
 int overallState = STATE_OVERALL_SEARCH_BALL;
 int driveState = STATE_DRIVE_FORWARDS;
@@ -75,6 +78,7 @@ void loop() {
   readUSSensors();
   setMotors();
   setServos();
+  camera.read();
  
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState);
@@ -705,7 +709,7 @@ int determineGMRState()
 
 int readCamera()
 {
-  int sensorValue;
+  /*int sensorValue;
 
   digitalWrite(CAMERA_SI_PIN, HIGH);
   delayMicroseconds(CAMERA_DELAY_TIME/2);               // wait for a second
@@ -795,7 +799,7 @@ int readCamera()
   #ifdef PLOT_PRINT_CAMERA_ON
     PLOT("CAM_Start", CAM_bestStart);
     PLOT("CAM_Width", CAM_bestWidth);
-  #endif
+  #endif*/
 }
 
 void readUSSensors()
