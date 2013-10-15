@@ -4,7 +4,7 @@
 #include "Thresholds.h"
 
 #define	DEBUG_PRINT_OFF
-#define	PLOT_PRINT_ON
+#define	PLOT_PRINT_OFF
 
 #define MOTORS_OFF
 #define BRUSHES_OFF
@@ -28,7 +28,7 @@
 #define TOUCH_SENSOR_FILTER_SIZE            5
 
 #define CAMERA_RESOLUTION                   128
-#define CAMERA_EXPOSURE_TIME                100
+#define CAMERA_EXPOSURE_TIME                200
 
 #define DESIRED_BALL_COLOUR                 BALL_RED
 

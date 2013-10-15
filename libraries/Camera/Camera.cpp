@@ -15,29 +15,22 @@ int Camera::read(){
   int sensorValue;
   int CAM_startPoint, CAM_conseq, CAM_bestStart, CAM_bestWidth, CAM_center, CAM_direction;
 
+  /*** Clear current values from camera ***/
   digitalWrite(CAMERA_SI_PIN, HIGH);
-  delayMicroseconds(CAMERA_DELAY_TIME/2);
   digitalWrite(CAMERA_CLK_PIN, HIGH);
-  delayMicroseconds(CAMERA_DELAY_TIME/2);
-  digitalWrite(CAMERA_SI_PIN, LOW);
-  delayMicroseconds(CAMERA_DELAY_TIME/2);
-  
+
+  digitalWrite(CAMERA_SI_PIN, LOW);	
+  digitalWrite(CAMERA_CLK_PIN, LOW);
+
   for(int i = 0; i < CAMERA_RESOLUTION; i ++)
   {
     digitalWrite(CAMERA_CLK_PIN, HIGH);
-    delayMicroseconds(CAMERA_DELAY_TIME_SHORT);
     digitalWrite(CAMERA_CLK_PIN, LOW);
-    delayMicroseconds(CAMERA_DELAY_TIME_SHORT);
   }
   
-  delayMicroseconds(CAMERA_EXPOSURE_TIME);               // wait for a second
+	/****************************************/
 
-  digitalWrite(CAMERA_SI_PIN, HIGH);
-  delayMicroseconds(CAMERA_DELAY_TIME/2);               // wait for a second
-  digitalWrite(CAMERA_CLK_PIN, HIGH);
-  delayMicroseconds(CAMERA_DELAY_TIME/2);               // wait for a second
-  digitalWrite(CAMERA_SI_PIN, LOW);
-  delayMicroseconds(CAMERA_DELAY_TIME/2);
+  delayMicroseconds(CAMERA_EXPOSURE_TIME);      // wait for light to hit array
   
   CAM_startPoint = 0;
   CAM_conseq = 0;
@@ -47,11 +40,14 @@ int Camera::read(){
   #ifdef PLOT_PRINT_CAMERA_ON_DETAIL
     PLOT_PRINT("CAM_RAW");
   #endif
+
+  digitalWrite(CAMERA_SI_PIN, HIGH);
+  digitalWrite(CAMERA_CLK_PIN, HIGH);
+  digitalWrite(CAMERA_SI_PIN, LOW);
   
   for(int i = 0; i < CAMERA_RESOLUTION; i ++)
   {
     digitalWrite(CAMERA_CLK_PIN, HIGH);
-    //delayMicroseconds(CAMERA_DELAY_TIME/2);               // wait for a second
     sensorValue = analogRead(CAMERA_ANALOG_IN_PIN);
     #ifdef PLOT_PRINT_CAMERA_ON_DETAIL
       PLOT_PRINT(":");
