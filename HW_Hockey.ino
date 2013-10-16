@@ -123,143 +123,151 @@ void setMotors()
   {
     motorBrushes.driveForwards(MOTOR_BRUSHES_NORMAL_SPEED);
 
-    if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
+    if(greenMatRightState == GREEN_MAT_ON)
     {
       //TODO - Handle avoiding goal.
       overallState = STATE_OVERALL_AVOID_GOAL;
-      driveTimer = millis() + 3000;
-      driveState = STATE_DRIVE_STOP;
+      driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
+      driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
     }
-
-    switch(driveState)
+    else if(greenMatLeftState == GREEN_MAT_ON)
     {
-      case STATE_DRIVE_FORWARDS:
-        motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-        motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+      overallState = STATE_OVERALL_AVOID_GOAL;
+      driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+      driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+    }
+    else
+    {
+      switch(driveState)
+      {
+        case STATE_DRIVE_FORWARDS:
+          motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-        if(TFR.on())
-        {
-          driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
-          driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
-        }
-        else if(TFL.on())
-        {
-          driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
-          driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
-        }
-        else if(IRFR.getFront() > IRFR_FRONT_Thresh)
-        {
-          driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
-          driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
-        }
-        else if(IRFL.getFront() > IRFL_FRONT_Thresh)
-        {
-          driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
-          driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
-        }
-        else if(IRFL.getSide() > IRFL_SIDE_Thresh)
-        {
-          driveState = STATE_DRIVE_BEND_RIGHT;
-          driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT; 
-        }
-        else if(IRFR.getSide() > IRFR_SIDE_Thresh)
-        {
-          driveState = STATE_DRIVE_BEND_LEFT_LEFT;
-          driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT; 
-        }
-        break;
+          if(TFR.on())
+          {
+            driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
+            driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
+          }
+          else if(TFL.on())
+          {
+            driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+            driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+          }
+          else if(IRFR.getFront() > IRFR_FRONT_Thresh)
+          {
+            driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
+            driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
+          }
+          else if(IRFL.getFront() > IRFL_FRONT_Thresh)
+          {
+            driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+            driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+          }
+          else if(IRFL.getSide() > IRFL_SIDE_Thresh)
+          {
+            driveState = STATE_DRIVE_BEND_RIGHT;
+            driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT; 
+          }
+          else if(IRFR.getSide() > IRFR_SIDE_Thresh)
+          {
+            driveState = STATE_DRIVE_BEND_LEFT_LEFT;
+            driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT; 
+          }
+          break;
 
-      case STATE_DRIVE_BACKOFF_LEFT_BACK:
-        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+        case STATE_DRIVE_BACKOFF_LEFT_BACK:
+          motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-        if(driveTimer < millis() || !(IRFL.getFront() > IRFL_FRONT_Thresh || IRFR.getFront() > IRFR_FRONT_Thresh))
-        {
-          driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
-          driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
-        }
-        break;
+          if(driveTimer < millis() || !(IRFL.getFront() > IRFL_FRONT_Thresh || IRFR.getFront() > IRFR_FRONT_Thresh))
+          {
+            driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
+            driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
+          }
+          break;
 
-      case STATE_DRIVE_BACKOFF_LEFT_LEFT:
-        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-        motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+        case STATE_DRIVE_BACKOFF_LEFT_LEFT:
+          motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-        if(driveTimer < millis())
-        {
-          driveState = STATE_DRIVE_FORWARDS;
-        }
-        break;
+          if(driveTimer < millis())
+          {
+            driveState = STATE_DRIVE_FORWARDS;
+          }
+          break;
 
-      case STATE_DRIVE_BACKOFF_RIGHT_BACK:
-        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+        case STATE_DRIVE_BACKOFF_RIGHT_BACK:
+          motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-        if(driveTimer < millis() || !(IRFL.getFront() > IRFL_FRONT_Thresh || IRFR.getFront() > IRFR_FRONT_Thresh))
-        {
-          driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
-          driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
-        }
-        break;
+          if(driveTimer < millis() || !(IRFL.getFront() > IRFL_FRONT_Thresh || IRFR.getFront() > IRFR_FRONT_Thresh))
+          {
+            driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
+            driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
+          }
+          break;
 
-      case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
-        motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+        case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
+          motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-        if(driveTimer < millis())
-        {
-          driveState = STATE_DRIVE_FORWARDS;
-        }
-        break;
+          if(driveTimer < millis())
+          {
+            driveState = STATE_DRIVE_FORWARDS;
+          }
+          break;
 
-      case STATE_DRIVE_STOP:
-        motorLeft.stop();
-        motorRight.stop();
+        case STATE_DRIVE_STOP:
+          motorLeft.stop();
+          motorRight.stop();
 
-        if(driveTimer < millis())
-        {
-          driveState = STATE_DRIVE_FORWARDS;
-        }
-        break;
+          if(driveTimer < millis())
+          {
+            driveState = STATE_DRIVE_FORWARDS;
+          }
+          break;
 
-      case STATE_DRIVE_BEND_LEFT_LEFT:
-        motorLeft.stop();
-        motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+        case STATE_DRIVE_BEND_LEFT_LEFT:
+          motorLeft.stop();
+          motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-        if(!(IRFR.getSide() > IRFR_SIDE_Thresh))
-        {
-          driveState = STATE_DRIVE_FORWARDS;
-        }
-        else if(driveTimer < millis())
-        {
-          driveState = STATE_DRIVE_BEND_LEFT_STRAIGHT;
-          driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_STRAIGHT;
-        }
-        break;
+          if(!(IRFR.getSide() > IRFR_SIDE_Thresh))
+          {
+            driveState = STATE_DRIVE_FORWARDS;
+          }
+          else if(driveTimer < millis())
+          {
+            driveState = STATE_DRIVE_BEND_LEFT_STRAIGHT;
+            driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_STRAIGHT;
+          }
+          break;
 
-      case STATE_DRIVE_BEND_LEFT_STRAIGHT:
-        motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-        motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+        case STATE_DRIVE_BEND_LEFT_STRAIGHT:
+          motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-        if(!(IRFR.getSide() > IRFR_SIDE_Thresh))
-        {
-          driveState = STATE_DRIVE_FORWARDS;
-        }
-        else if(driveTimer < millis())
-        {
-          driveState = STATE_DRIVE_BEND_LEFT_LEFT;
-          driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT;
-        }
-        break;
+          if(!(IRFR.getSide() > IRFR_SIDE_Thresh))
+          {
+            driveState = STATE_DRIVE_FORWARDS;
+          }
+          else if(driveTimer < millis())
+          {
+            driveState = STATE_DRIVE_BEND_LEFT_LEFT;
+            driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT;
+          }
+          break;
 
-      case STATE_DRIVE_BEND_RIGHT:    // No two-part bending like going left.
-        motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+        case STATE_DRIVE_BEND_RIGHT:    // No two-part bending like going left.
+          motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-        if(driveTimer < millis() || !(IRFL.getSide() > IRFL_SIDE_Thresh))
-        {
-          driveState = STATE_DRIVE_FORWARDS;
-        }
-        break;
+          if(driveTimer < millis() || !(IRFL.getSide() > IRFL_SIDE_Thresh))
+          {
+            driveState = STATE_DRIVE_FORWARDS;
+          }
+          break;
+      }
     }
   }
   else if(overallState == STATE_OVERALL_SEARCH_GOAL)
@@ -308,7 +316,7 @@ void setMotors()
           else if(IRBR.getSide() > IRBR_SIDE_Thresh)
           {
             driveState = STATE_DRIVE_BEND_LEFT_LEFT;
-            driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT; 
+            driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT;
           }
           break;
 
@@ -364,13 +372,33 @@ void setMotors()
           }
           break;
 
-        case STATE_DRIVE_BEND_LEFT:
-          motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+        case STATE_DRIVE_BEND_LEFT_LEFT:
+          motorLeft.stop();
           motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-          if(driveTimer < millis() || !(IRBR.getSide() > IRBR_SIDE_Thresh))
+          if(!(IRBR.getSide() > IRBR_SIDE_Thresh))
           {
             driveState = STATE_DRIVE_FORWARDS;
+          }
+          else if(driveTimer < millis())
+          {
+            driveState = STATE_DRIVE_BEND_LEFT_STRAIGHT;
+            driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_STRAIGHT;
+          }
+          break;
+
+        case STATE_DRIVE_BEND_LEFT_STRAIGHT:
+          motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+          motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+          if(!(IRBR.getSide() > IRBR_SIDE_Thresh))
+          {
+            driveState = STATE_DRIVE_FORWARDS;
+          }
+          else if(driveTimer < millis())
+          {
+            driveState = STATE_DRIVE_BEND_LEFT_LEFT;
+            driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT;
           }
           break;
 
@@ -508,13 +536,55 @@ void setMotors()
   {
     switch(driveState)
     {
-      case STATE_DRIVE_STOP:
+      case STATE_DRIVE_BACKOFF_LEFT_BACK:
+        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+        if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
+          driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
+
+        if(driveTimer < millis())
+        {
+          driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
+          driveTimer = TIMER_DRIVE_BACKOFF_LEFT_LEFT;
+        }
+        break;
+
+      case STATE_DRIVE_BACKOFF_RIGHT_BACK:
+        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+        if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
+          driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
+
+        if(driveTimer < millis())
+        {
+          driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
+          driveTimer = TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
+        }
+        break;
+
+      case STATE_DRIVE_BACKOFF_LEFT_LEFT:
+        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+        motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+
         if(driveTimer < millis())
         {
           overallState = STATE_OVERALL_SEARCH_BALL;
-          driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
-          driveTimer = TIMER_DRIVE_BACKOFF_LEFT_BACK;
+          driveState = STATE_DRIVE_FORWARDS;
         }
+        break;
+
+      case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
+        motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+        if(driveTimer < millis())
+        {
+          overallState = STATE_OVERALL_SEARCH_BALL;
+          driveState = STATE_DRIVE_FORWARDS;
+        }
+        break;
     }
   }
 

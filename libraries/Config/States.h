@@ -13,9 +13,10 @@
 #define STATE_DRIVE_BACKOFF_RIGHT_RIGHT 5
 #define STATE_DRIVE_STOP                6
 #define STATE_DRIVE_BEND_LEFT_LEFT      7
-#define STATE_DRIVE_BEND_LEFT 			7
+#define STATE_DRIVE_BEND_LEFT 			7 	// Should eventually removed
 #define STATE_DRIVE_BEND_LEFT_STRAIGHT  8
 #define STATE_DRIVE_BEND_RIGHT          9
+#define STATE_DRIVE_BEND_RIGHT_STRAIGHT 10
 
 #define DIRECTION_FORWARDS              0
 #define DIRECTION_BACKWARDS             1
