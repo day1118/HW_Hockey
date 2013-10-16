@@ -31,11 +31,23 @@ IRSensor::IRSensor(String name, int pinLED, int pinFront, int pinSide, int front
 
 void IRSensor::update(){
 	_frontOff = analogRead(_pinFront);
+	LED_READ_DELAY;
+	_frontOff = analogRead(_pinFront);
+
 	_sideOff = analogRead(_pinSide);
+	LED_READ_DELAY;
+	_sideOff = analogRead(_pinSide);
+
 	digitalWrite(_pinLED, HIGH);
+
+	_frontOn = analogRead(_pinFront);
 	LED_READ_DELAY;
 	_frontOn = analogRead(_pinFront);
+
 	_sideOn = analogRead(_pinSide);
+	LED_READ_DELAY;
+	_sideOn = analogRead(_pinSide);
+
 	digitalWrite(_pinLED, LOW);
 
 	_frontDiff = _frontOn - _frontOff;

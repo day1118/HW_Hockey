@@ -27,13 +27,17 @@ ColourSensor::ColourSensor(String name, int pinLED1, int pinLED2, int pinPhototr
 
 void ColourSensor::update(){
 	_off = analogRead(_pinPhototransistor);
+	LED_READ_DELAY;
+	_off = analogRead(_pinPhototransistor);
 
 	digitalWrite(_pinLED1, HIGH);
+	_colour1On = analogRead(_pinPhototransistor);
 	LED_READ_DELAY;
 	_colour1On = analogRead(_pinPhototransistor);
 	digitalWrite(_pinLED1, LOW);
 
 	digitalWrite(_pinLED2, HIGH);
+	_colour2On = analogRead(_pinPhototransistor);
 	LED_READ_DELAY;
 	_colour2On = analogRead(_pinPhototransistor);
 	digitalWrite(_pinLED2, LOW);
