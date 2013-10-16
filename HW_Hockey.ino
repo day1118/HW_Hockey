@@ -77,6 +77,7 @@ void loop() {
   readTouchSensors();
   readColourSensors();
   readUSSensors();
+  stallDetection();
   setMotors();
   setServos();
   //camera.read();
@@ -822,4 +823,19 @@ void readUSSensors()
 bool alignedToGoal()
 {
   return (CAM_direction == BEACON_CENTER && US_back_cm > 0 && US_back_cm < 100);
+}
+
+void stallDetection()
+{
+	#ifdef STALL_DETECTION_ON
+		if((IRFL.frontGetTimeSinceChange() > IR_STALL_TIME) && (IRFL.sideGetTimeSinceChange() > IR_STALL_TIME)
+		 && (IRFR.frontGetTimeSinceChange() > IR_STALL_TIME) && (IRFR.sideGetTimeSinceChange() > IR_STALL_TIME)
+		 && (IRBL.frontGetTimeSinceChange() > IR_STALL_TIME) && (IRBL.sideGetTimeSinceChange() > IR_STALL_TIME)
+		 && (IRBR.frontGetTimeSinceChange() > IR_STALL_TIME) && (IRBR.sideGetTimeSinceChange() > IR_STALL_TIME))
+		{
+			// Handle stall
+			if(overallState == STATE_OVERALL_SEARCH_BALL || overallState == STATE_OVERALL_SEARCH_GOAL)
+				driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;		// Chosen randomally.
+		}
+	#endif
 }

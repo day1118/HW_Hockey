@@ -8,6 +8,7 @@
 
 #define MOTORS_ON
 #define BRUSHES_OFF
+#define STALL_DETECTION_ON
 
 #define PLOT_PRINT_STATUS_ON
 #define PLOT_PRINT_TOUCH_OFF_DETAIL
@@ -26,6 +27,8 @@
 #define IR_FILTER_SIZE                      3
 #define COLOUR_FILTER_SIZE                  5
 #define TOUCH_SENSOR_FILTER_SIZE            5
+
+#define IR_STALL_TIME						20000
 
 #define CAMERA_RESOLUTION                   128
 #define CAMERA_EXPOSURE_TIME                200
