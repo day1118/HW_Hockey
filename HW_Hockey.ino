@@ -9,6 +9,7 @@
   #include "ColourSensor.h"
   #include "TouchSensor.h"
   #include "Camera.h"
+  #include "Filter.h"
 
   #include <Servo.h> 
   #include <NewPing.h> 

@@ -1,16 +1,21 @@
-#include "Arduino.h"
-#include "Config.h"
+#ifndef FILTER_H
+	#define FILTER_H
 
-class Filter{
-public:
-	Filter(int size);
-	void update(bool newState);
-	bool on();
-	unsigned long getTimeSinceChange();
+	#include "Arduino.h"
+	#include "Config.h"
 
-private:
-	int _counter;
-	bool _active;
-	int _size;
-	unsigned long _changeTime;
-};
+	class Filter{
+	public:
+		Filter(int size);
+		void update(bool newState);
+		bool on();
+		unsigned long getTimeSinceChange();
+
+	private:
+		int _counter;
+		bool _active;
+		int _size;
+		unsigned long _changeTime;
+	};
+
+#endif

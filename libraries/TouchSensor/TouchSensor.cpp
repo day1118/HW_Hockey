@@ -1,7 +1,6 @@
 #include "TouchSensor.h"
 
-TouchSensor::TouchSensor(String name, int pinTouch) {
-	//_filter(TOUCH_SENSOR_FILTER_SIZE);
+TouchSensor::TouchSensor(String name, int pinTouch) : _filter(TOUCH_SENSOR_FILTER_SIZE) {
 	_pinTouch = pinTouch;
 	_name = name;
 

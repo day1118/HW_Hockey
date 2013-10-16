@@ -1,6 +1,6 @@
 #include "Arduino.h"
-#include "Config.h"
-#include <Filter.h>
+//#include "Config.h"
+#include "../Filter/Filter.h"
 
 class TouchSensor
 {
@@ -11,7 +11,7 @@ public:
 	int getTimeSinceChange();
 
 private:
-	//Filter _filter;
+	Filter _filter;
 
 	int _pinTouch;
 	String _name;
