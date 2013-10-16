@@ -12,25 +12,23 @@ TouchSensor::TouchSensor(String name, int pinTouch) : _filter(TOUCH_SENSOR_FILTE
 
 void TouchSensor::update(){
 	_touchOn = !digitalRead(_pinTouch);
-	//_filter.update(_touchOn);
+	_filter.update(_touchOn);
 
 	#ifdef PLOT_PRINT_TOUCH_ON_DETAIL
   		PLOT(_name + "_ON", _touchOn);
-	    //PLOT(_name + "_ON_FILTER", _filter.isOn);
-		//PLOT(_name + "_TIME", _filter.getTimeSinceChange);
+	    PLOT(_name + "_ON_FILTER", _filter.isOn);
+		PLOT(_name + "_TIME", _filter.getTimeSinceChange);
     #endif
 
 	#ifdef PLOT_PRINT_TOUCH_ON
-		//PLOT(_name + "_ON_FILTER", _filter.isOn);
+		PLOT(_name + "_ON_FILTER", _filter.isOn);
     #endif
 }
 
 int TouchSensor::on(){
-	///return _filter.on();
-	return _touchOn;
+	return _filter.on();
 }
 
 int TouchSensor::getTimeSinceChange(){
-	///return _filter.getTimeSinceChange();
-	return 0;
+	return _filter.getTimeSinceChange();
 }

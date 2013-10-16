@@ -1,11 +1,14 @@
 #include "IRSensor.h"
 
-IRSensor::IRSensor(String name, int pinLED, int pinFront, int pinSide){
+IRSensor::IRSensor(String name, int pinLED, int pinFront, int pinSide, int frontThresh, int sideThresh) : _frontFilter(1), _sideFilter(IR_FILTER_SIZE) {
 	_pinLED = pinLED;
 	_pinFront = pinFront;
 	_pinSide = pinSide;
 	_filterSize = IR_FILTER_SIZE;
 	_name = name;
+
+	_frontThresh = frontThresh;
+	_sideThresh = sideThresh;
 
 	_frontOff = 0;
 	_frontOn = 0;
@@ -46,6 +49,9 @@ void IRSensor::update(){
 	_sideDiffFilterLarge += _sideDiff;
 	_sideDiffFilter = _sideDiffFilterLarge/_filterSize;
 
+	_frontFilter.update(_frontDiffFilter > _frontThresh);
+	_sideFilter.update(_sideDiffFilter > _sideThresh);
+
   	#ifdef PLOT_PRINT_IR_ON_DETAIL
   		PLOT(_name + "_FRONT_OFF", _frontOff);
 	    PLOT(_name + "_FRONT_ON", _frontOn);
@@ -70,3 +76,19 @@ int IRSensor::getFront(){
 int IRSensor::getSide(){
 	return _sideDiffFilter;
 }
+
+bool IRSensor::frontOn(){
+	return _frontFilter.on();
+}
+bool IRSensor::sideOn(){
+	return _sideFilter.on();
+}
+
+int IRSensor::frontGetTimeSinceChange(){
+	return _frontFilter.getTimeSinceChange();
+}
+int IRSensor::sideGetTimeSinceChange(){
+	return _sideFilter.getTimeSinceChange();
+}
+
+	
