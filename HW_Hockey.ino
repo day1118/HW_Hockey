@@ -505,7 +505,7 @@ void setMotors()
             else
             {
               goalState = STATE_GOAL_DRIVE_OVER_MAT; // Go back and check that we are aligned right.
-              goalTimer = 0;
+              goalTimer = 0;						 //  Do not drive onto the mat in the process.
             }
 
             motorLeft.stop();   // This is to increase reaction speed.
@@ -533,7 +533,7 @@ void setMotors()
     }
   }
   else if(overallState == STATE_OVERALL_AVOID_GOAL)
-  {
+  { 		// Could be done better by locking for camera, then driving away.
     switch(driveState)
     {
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
@@ -546,7 +546,7 @@ void setMotors()
         if(driveTimer < millis())
         {
           driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
-          driveTimer = TIMER_DRIVE_BACKOFF_LEFT_LEFT;
+          driveTimer = TIMER_DRIVE_BACKOFF_LEFT_LEFT;		// This time is very short.
         }
         break;
 
@@ -820,6 +820,6 @@ void readUSSensors()
 }
 
 bool alignedToGoal()
-{
+{	// May need to check if peak is centered more accuratly.
   return (CAM_direction == BEACON_CENTER && US_back_cm > 0 && US_back_cm < 100);
 }
