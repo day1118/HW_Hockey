@@ -21,7 +21,8 @@ Servo servoF, servoB, servoK;
 
 Motor motorLeft("MOTOR_LEFT", MOTOR_L_A_PIN, MOTOR_L_B_PIN, MOTOR_L_ENABLE_PIN);
 Motor motorRight("MOTOR_RIGHT", MOTOR_R_A_PIN, MOTOR_R_B_PIN, MOTOR_R_ENABLE_PIN);
-Motor motorBrushes("MOTOR_BRUSHES", MOTOR_B_A_PIN, MOTOR_B_B_PIN, MOTOR_B_ENABLE_PIN);
+//Motor motorBrushes("MOTOR_BRUSHES", MOTOR_B_A_PIN, MOTOR_B_B_PIN, MOTOR_B_ENABLE_PIN);
+Motor motorBrushes("MOTOR_BRUSHES");
 
 IRSensor IRFL("IRFL", IRFL_IR_LED_PIN, IRFL_FRONT_PHOTOTRANSISTOR_PIN, IRFL_SIDE_PHOTOTRANSISTOR_PIN, IRFL_FRONT_Thresh, IRFL_SIDE_Thresh);
 IRSensor IRFR("IRFR", IRFR_IR_LED_PIN, IRFR_FRONT_PHOTOTRANSISTOR_PIN, IRFR_SIDE_PHOTOTRANSISTOR_PIN, IRFR_FRONT_Thresh, IRFR_SIDE_Thresh);
@@ -290,20 +291,29 @@ void setMotors()
 
           if(TBL.on())
           {
-            driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
-            driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+            //driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+            //driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+            driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
+            driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
           }
           else if(TBR.on())
           {
+            //driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+            //driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
             driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
             driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
           }
-          else if(IRBR.getFront() > IRBL_BACK_Thresh)
+          else if(IRBR.getFront() > 300)
           {
             driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
             driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
           }
-          else if(IRBL.getFront() > IRBR_BACK_Thresh)
+          else if(IRBR.getFront() > 100 && IRBR.getSide() < IRBR_SIDE_Thresh)
+          {
+            driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
+            driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
+          }/*
+          else if(IRBL.getFront() > IRBL_BACK_Thresh)
           {
             driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
             driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
@@ -312,7 +322,7 @@ void setMotors()
           {
             driveState = STATE_DRIVE_BEND_RIGHT;
             driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT; 
-          }
+          }*/
           else if(IRBR.getSide() > IRBR_SIDE_Thresh)
           {
             driveState = STATE_DRIVE_BEND_LEFT_LEFT;
@@ -376,7 +386,7 @@ void setMotors()
           motorLeft.stop();
           motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-          if(!(IRBR.getSide() > IRBR_SIDE_Thresh))
+          if(!(IRBR.getSide() > IRBR_SIDE_Thresh) || TBR.on() || TBL.on())
           {
             driveState = STATE_DRIVE_FORWARDS;
           }

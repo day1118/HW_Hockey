@@ -6,7 +6,7 @@
 #define IRBL_BACK_Thresh		200
 #define IRBR_BACK_Thresh		200
 #define IRBL_SIDE_Thresh		150
-#define IRBR_SIDE_Thresh		150
+#define IRBR_SIDE_Thresh		300
 
 #define BALL_IR_Thresh          150
 #define BALL_RED_Thresh         100
@@ -24,7 +24,7 @@
 #define MOTOR_LEFT_NORMAL_SPEED	220
 #define MOTOR_LEFT_GOAL_SPEED	220
 
-#define MOTOR_RIGHT_NORMAL_SPEED	220
+#define MOTOR_RIGHT_NORMAL_SPEED	240
 #define MOTOR_RIGHT_GOAL_SPEED	220
 
 #define MOTOR_BRUSHES_NORMAL_SPEED	200
