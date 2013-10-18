@@ -6,6 +6,7 @@ Motor::Motor(String name, int pinA, int pinB, int pinEnable){
 	_pinEnable = pinEnable;
 	_pwm = 0;
 	_name = name;
+	_enabled = true;
 
 	pinMode(_pinA, OUTPUT);
 	pinMode(_pinB, OUTPUT);
@@ -16,20 +17,31 @@ Motor::Motor(String name, int pinA, int pinB, int pinEnable){
 
 }
 
+Motor::Motor(String name){
+_name = name;
+_enabled = false;
+}
+
 void Motor::stop(){
 	int _pwm = 0;
-	digitalWrite(_pinA, LOW);
-	digitalWrite(_pinB, LOW);
-	analogWrite(_pinEnable, _pwm);
+	if(_enabled)
+	{
+		digitalWrite(_pinA, LOW);
+		digitalWrite(_pinB, LOW);
+		analogWrite(_pinEnable, _pwm);
+	}
 	plotSpeed(DIRECTION_STOP);
 }
 
 void Motor::driveForwards(int pwm){
 	int _pwm = pwm;
 	#ifdef MOTORS_ON
-		analogWrite(_pinEnable, _pwm);
-		digitalWrite(_pinA, HIGH);
-		digitalWrite(_pinB, LOW);
+		if(_enabled)
+		{
+			analogWrite(_pinEnable, _pwm);
+			digitalWrite(_pinA, HIGH);
+			digitalWrite(_pinB, LOW);
+		}
 	#endif
 	plotSpeed(DIRECTION_FORWARDS);
 }
@@ -37,9 +49,12 @@ void Motor::driveForwards(int pwm){
 void Motor::driveBackwards(int pwm){
 	int _pwm = pwm;
 	#ifdef MOTORS_ON
-		analogWrite(_pinEnable, _pwm);
-		digitalWrite(_pinA, LOW);
-		digitalWrite(_pinB, HIGH);
+		if(_enabled)
+		{
+			analogWrite(_pinEnable, _pwm);
+			digitalWrite(_pinA, LOW);
+			digitalWrite(_pinB, HIGH);
+		}
 	#endif
 	plotSpeed(DIRECTION_BACKWARDS);
 }

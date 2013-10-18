@@ -16,7 +16,7 @@ void Filter::update(bool newState){
 	else
 	{
 		if(_counter > 0)
-			_counter++;
+			_counter--;
 		else
 		{
 			_active = newState;

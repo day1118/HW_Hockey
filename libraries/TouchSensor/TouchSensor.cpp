@@ -16,12 +16,12 @@ void TouchSensor::update(){
 
 	#ifdef PLOT_PRINT_TOUCH_ON_DETAIL
   		PLOT(_name + "_ON", _touchOn);
-	    PLOT(_name + "_ON_FILTER", _filter.isOn);
-		PLOT(_name + "_TIME", _filter.getTimeSinceChange);
+	    PLOT(_name + "_ON_FILTER", _filter.on());
+		PLOT(_name + "_TIME", _filter.getTimeSinceChange());
     #endif
 
 	#ifdef PLOT_PRINT_TOUCH_ON
-		PLOT(_name + "_ON_FILTER", _filter.isOn);
+		PLOT(_name + "_ON_FILTER", _filter.on());
     #endif
 }
 
