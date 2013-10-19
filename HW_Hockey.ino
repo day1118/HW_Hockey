@@ -43,13 +43,15 @@ TouchSensor TBR("TBR", BACK_RIGHT_TOUCH_SENSOR);
 
 Camera camera("CAM", CAMERA_SI_PIN, CAMERA_CLK_PIN, CAMERA_ANALOG_IN_PIN);
 
-int overallState = STATE_OVERALL_SEARCH_BALL;
+int overallState = STATE_OVERALL_SEARCH_GOAL;
 int driveState = STATE_DRIVE_FORWARDS;
 int servoState = STATE_SERVO_SERACH;
 int goalState = STATE_GOAL_DRIVE_OVER_MAT;
 
 int servoFPos, servoBPos, servoKPos;
-int ballType, greenMatLeftState, greenMatRightState;
+int ballType = BALL_WRONG;
+int greenMatLeftState = GREEN_MAT_OFF;
+int greenMatRightState = GREEN_MAT_OFF;
 int CAM_direction;
 
 unsigned long driveTimer = 0, servoTimer = 0, goalTimer = 0;
@@ -79,7 +81,7 @@ void loop() {
   // Read each sensor in a loop
   readIRSensors();
   readTouchSensors();
-  readColourSensors();
+  //readColourSensors();
   readUSSensors();
   setMotors();
   setServos();
@@ -292,17 +294,18 @@ void setMotors()
           motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
           motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-          if(TBL.on() || TBR.on() || IRBR.getFront() > 300)
+          if(TBL.on() || TBR.on() || IRBR.getFront() > 200)
           {   // Touch sensors or front is very close
             driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
             driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
           }
-          else if(IRBR.getFront() > 100 && IRBR.getSide() < IRBR_SIDE_Thresh)
+          else if(IRBR.getFront() > 100 && !(IRBR.getSide() > 100))
           {   // Something in front, but not beside
             driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
             driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
           }
-          else if(IRBR.getSide() > IRBR_SIDE_Thresh)
+          else
+           if(IRBR.getSide() > 300)
           {   // Something beside
             driveState = STATE_DRIVE_BEND_LEFT_LEFT;
             driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT;
@@ -313,7 +316,7 @@ void setMotors()
           motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
           motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-          if(driveTimer < millis() || !(IRBR.getFront() > IRBR_BACK_Thresh || IRBR.getFront() > IRBR_BACK_Thresh))
+          if(driveTimer < millis() || !(IRBL.getFront() > 100 || IRBR.getFront() > 100))
           { // If time is up, or nothing in front
             driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
             driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
@@ -378,8 +381,9 @@ void setMotors()
 
           if(driveTimer < millis())
           {
-            driveState = STATE_DRIVE_BEND_LEFT_LEFT;
-            driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT;
+            driveState = STATE_DRIVE_FORWARDS;
+            //driveState = STATE_DRIVE_BEND_LEFT_LEFT;
+            //driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT;
           }
           break;
 
