@@ -1,6 +1,6 @@
 #include "IRSensor.h"
 
-IRSensor::IRSensor(String name, int pinLED, int pinFront, int pinSide, int frontThresh, int sideThresh) : _frontFilter(1), _sideFilter(IR_FILTER_SIZE) {
+IRSensor::IRSensor(String name, int pinLED, int pinFront, int pinSide, int frontThresh, int sideThresh) : _frontFilter(IR_FILTER_SIZE), _sideFilter(IR_FILTER_SIZE) {
 	_pinLED = pinLED;
 	_pinFront = pinFront;
 	_pinSide = pinSide;
