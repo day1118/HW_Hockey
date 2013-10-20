@@ -54,7 +54,7 @@ int greenMatLeftState = GREEN_MAT_OFF;
 int greenMatRightState = GREEN_MAT_OFF;
 int CAM_direction;
 
-bool wallFollowLeft = true;
+bool wallFollowLeft = false;
 
 unsigned long driveTimer = 0, servoTimer = 0, goalTimer = 0;
 
@@ -320,7 +320,7 @@ void setMotors()
             motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
             motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-            if(driveTimer < millis() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh))
+            if(driveTimer < millis() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh || IRBR.getSide() > IRBR_SIDE_CLOSE_Thresh))
             { // If time is up, or nothing in front
               driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
@@ -405,7 +405,7 @@ void setMotors()
             motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
             motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-            if(driveTimer < millis() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh))
+            if(driveTimer < millis() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh  || IRBL.getSide() > IRBL_SIDE_CLOSE_Thresh))
             { // If time is up, or nothing in front
               driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
