@@ -346,8 +346,7 @@ void setMotors()
             { // Stalled. Backoff.
               driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
             }
-
-            if(driveState.expired())
+            else if(driveState.expired())
             {
               driveState.setState(STATE_DRIVE_BEND_RIGHT_STRAIGHT, TIMER_DRIVE_BEND_RIGHT_STRAIGHT);
             }
@@ -431,9 +430,7 @@ void setMotors()
             else if(IRBL.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
               driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
-            }
-
-            if(driveState.expired())
+            } else if(driveState.expired())
             {
               driveState.setState(STATE_DRIVE_BEND_LEFT_STRAIGHT, TIMER_DRIVE_BEND_LEFT_STRAIGHT);
             }
