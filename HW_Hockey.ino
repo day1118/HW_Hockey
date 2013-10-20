@@ -138,12 +138,12 @@ void setMotors()
     {
       //TODO - Handle avoiding goal.
       overallState.setState(STATE_OVERALL_AVOID_GOAL, NEVER_EXPIRE);
-      driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
+      driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
     }
     else if(greenMatLeftState == GREEN_MAT_ON)
     {
       overallState.setState(STATE_OVERALL_AVOID_GOAL, NEVER_EXPIRE);
-      driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
+      driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
     }
     else
     {
@@ -153,9 +153,9 @@ void setMotors()
           wallFollowLeft = !wallFollowLeft;
           overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
           if(wallFollowLeft)
-            driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
+            driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
           else
-            driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
+            driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
         }
       #endif
 
@@ -169,15 +169,15 @@ void setMotors()
 
             if(TFL.on() || TFR.on() || IRFL.getFront() > IRFL_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
-              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
+              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
             }
             else if(IRFL.getFront() > IRFL_FRONT_FAR_Thresh && !(IRFL.getSide() > IRFL_SIDE_FAR_Thresh))
             {   // Something in front, but not beside
-              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_BACKOFF_RIGHT_RIGHT);
+              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_RIGHT);
             }
             else if(IRFL.getSide() > IRFL_SIDE_CLOSE_Thresh)
             {   // Something beside
-              driveState.setState(STATE_DRIVE_BEND_RIGHT_RIGHT, TIMER_DRIVE_BEND_RIGHT_RIGHT);
+              driveState.setState(STATE_DRIVE_BEND_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BEND_RIGHT_RIGHT);
             }
             break;
 
@@ -187,7 +187,7 @@ void setMotors()
 
             if(driveState.expired() || !(IRFL.getFront() > IRFL_FRONT_FAR_Thresh || IRFR.getFront() > IRFR_FRONT_FAR_Thresh || IRFL.getSide() > IRFL_SIDE_CLOSE_Thresh))
             { // If time is up, or nothing in front
-              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_BACKOFF_RIGHT_RIGHT);
+              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_RIGHT);
             }
             break;
 
@@ -211,11 +211,11 @@ void setMotors()
             }
             else if(IRFL.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
-              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
+              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
             }
             else if(driveState.expired())
             {
-              driveState.setState(STATE_DRIVE_BEND_RIGHT_STRAIGHT, TIMER_DRIVE_BEND_RIGHT_STRAIGHT);
+              driveState.setState(STATE_DRIVE_BEND_RIGHT_STRAIGHT, TIMER_DRIVE_FORWARD_BEND_RIGHT_STRAIGHT);
             }
             break;
 
@@ -253,16 +253,16 @@ void setMotors()
 
             if(TFL.on() || TFR.on() || IRFR.getFront() > IRFR_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
-              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
+              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
             }
             else if(IRFR.getFront() > IRFR_FRONT_FAR_Thresh && !(IRFR.getSide() > IRFR_SIDE_FAR_Thresh))
             {   // Something in front, but not beside
-              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_BACKOFF_LEFT_LEFT);
+              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_LEFT);
             }
             else
              if(IRFR.getSide() > IRFR_SIDE_CLOSE_Thresh)
             {   // Something beside
-              driveState.setState(STATE_DRIVE_BEND_LEFT_LEFT, TIMER_DRIVE_BEND_LEFT_LEFT);
+              driveState.setState(STATE_DRIVE_BEND_LEFT_LEFT, TIMER_DRIVE_FORWARD_BEND_LEFT_LEFT);
             }
             break;
 
@@ -272,7 +272,7 @@ void setMotors()
 
             if(driveState.expired() || !(IRFR.getFront() > IRFR_FRONT_FAR_Thresh || IRFR.getFront() > IRFR_FRONT_FAR_Thresh  || IRFR.getSide() > IRFR_SIDE_CLOSE_Thresh))
             { // If time is up, or nothing in front
-              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_BACKOFF_LEFT_LEFT);
+              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_LEFT);
             }
             break;
 
@@ -296,10 +296,10 @@ void setMotors()
             }
             else if(IRFR.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
-              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
+              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
             } else if(driveState.expired())
             {
-              driveState.setState(STATE_DRIVE_BEND_LEFT_STRAIGHT, TIMER_DRIVE_BEND_LEFT_STRAIGHT);
+              driveState.setState(STATE_DRIVE_BEND_LEFT_STRAIGHT, TIMER_DRIVE_FORWARD_BEND_LEFT_STRAIGHT);
             }
             break;
 
@@ -347,9 +347,9 @@ void setMotors()
           wallFollowLeft = !wallFollowLeft;
           overallState.setState(STATE_OVERALL_SEARCH_GOAL, TIMER_OVERALL_SEARCH_GOAL);
           if(wallFollowLeft)
-            driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
+            driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_RIGHT_BACK);
           else
-            driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
+            driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_LEFT_BACK);
         }
       #endif
       
@@ -363,16 +363,16 @@ void setMotors()
 
             if(TBL.on() || TBR.on() || IRBR.getFront() > IRBR_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
-              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
+              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_RIGHT_BACK);
             }
             else if(IRBR.getFront() > IRBR_FRONT_FAR_Thresh && !(IRBR.getSide() > IRBR_SIDE_FAR_Thresh))
             {   // Something in front, but not beside
-              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_BACKOFF_RIGHT_RIGHT);
+              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_BACKWARD_BACKOFF_RIGHT_RIGHT);
             }
             else
              if(IRBR.getSide() > IRBR_SIDE_CLOSE_Thresh)
             {   // Something beside
-              driveState.setState(STATE_DRIVE_BEND_RIGHT_RIGHT, TIMER_DRIVE_BEND_RIGHT_RIGHT);
+              driveState.setState(STATE_DRIVE_BEND_RIGHT_RIGHT, TIMER_DRIVE_BACKWARD_BEND_RIGHT_RIGHT);
             }
             break;
 
@@ -382,7 +382,7 @@ void setMotors()
 
             if(driveState.expired() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh || IRBR.getSide() > IRBR_SIDE_CLOSE_Thresh))
             { // If time is up, or nothing in front
-              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_BACKOFF_RIGHT_RIGHT);
+              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_BACKWARD_BACKOFF_RIGHT_RIGHT);
             }
             break;
 
@@ -406,11 +406,11 @@ void setMotors()
             }
             else if(IRBR.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
-              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
+              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_RIGHT_BACK);
             }
             else if(driveState.expired())
             {
-              driveState.setState(STATE_DRIVE_BEND_RIGHT_STRAIGHT, TIMER_DRIVE_BEND_RIGHT_STRAIGHT);
+              driveState.setState(STATE_DRIVE_BEND_RIGHT_STRAIGHT, TIMER_DRIVE_BACKWARD_BEND_RIGHT_STRAIGHT);
             }
             break;
 
@@ -448,16 +448,16 @@ void setMotors()
 
             if(TBL.on() || TBR.on() || IRBL.getFront() > IRBL_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
-              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
+              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_LEFT_BACK);
             }
             else if(IRBL.getFront() > IRBL_FRONT_FAR_Thresh && !(IRBL.getSide() > IRBL_SIDE_FAR_Thresh))
             {   // Something in front, but not beside
-              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_BACKOFF_LEFT_LEFT);
+              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_BACKWARD_BACKOFF_LEFT_LEFT);
             }
             else
              if(IRBL.getSide() > IRBL_SIDE_CLOSE_Thresh)
             {   // Something beside
-              driveState.setState(STATE_DRIVE_BEND_LEFT_LEFT, TIMER_DRIVE_BEND_LEFT_LEFT);
+              driveState.setState(STATE_DRIVE_BEND_LEFT_LEFT, TIMER_DRIVE_BACKWARD_BEND_LEFT_LEFT);
             }
             break;
 
@@ -467,7 +467,7 @@ void setMotors()
 
             if(driveState.expired() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh  || IRBL.getSide() > IRBL_SIDE_CLOSE_Thresh))
             { // If time is up, or nothing in front
-              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_BACKOFF_LEFT_LEFT);
+              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_BACKWARD_BACKOFF_LEFT_LEFT);
             }
             break;
 
@@ -491,10 +491,10 @@ void setMotors()
             }
             else if(IRBL.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
-              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
+              driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_LEFT_BACK);
             } else if(driveState.expired())
             {
-              driveState.setState(STATE_DRIVE_BEND_LEFT_STRAIGHT, TIMER_DRIVE_BEND_LEFT_STRAIGHT);
+              driveState.setState(STATE_DRIVE_BEND_LEFT_STRAIGHT, TIMER_DRIVE_BACKWARD_BEND_LEFT_STRAIGHT);
             }
             break;
 
@@ -554,7 +554,7 @@ void setMotors()
           motorLeft.driveForwards(MOTOR_LEFT_GOAL_SPEED);
           motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
 
-          if(alignedToGoal() || goalTimer < millis())
+          if(alignedToGoal() || goalTimer < millis())   // TODO - Could stop when it is to the left, then adjust.
           {
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
@@ -570,7 +570,7 @@ void setMotors()
           motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
           motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
 
-          if(alignedToGoal() || goalTimer < millis())
+          if(alignedToGoal() || goalTimer < millis())     // TODO - Could stop when it is to the right, then adjust.
           {
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
@@ -651,11 +651,11 @@ void setMotors()
         motorRight.driveBackwards(MOTOR_RIGHT_FORWARD_SPEED);
 
         if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
-          // driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;   // TODO: Think about this
+          // driveTimer = millis() + TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK;   // TODO: Think about this
 
         if(driveState.expired())
         {
-          driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_BACKOFF_LEFT_LEFT);
+          driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_LEFT);
         }
         break;
 
@@ -664,11 +664,11 @@ void setMotors()
         motorRight.driveBackwards(MOTOR_RIGHT_FORWARD_SPEED);
 
         if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
-          //driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;    // TODO: Think about this
+          //driveTimer = millis() + TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK;    // TODO: Think about this
 
         if(driveState.expired())
         {
-          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_BACKOFF_RIGHT_RIGHT);
+          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_RIGHT);
         }
         break;
 
