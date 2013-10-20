@@ -4,6 +4,8 @@
 #define STATE_OVERALL_ALIGN_GOAL		2
 #define STATE_OVERALL_AVOID_GOAL		3
 
+#define TIMER_OVERALL_SEARCH_GOAL		30000
+
 /*** Define drive states ***/
 #define STATE_DRIVE_FORWARDS            0
 #define STATE_DRIVE_BACKWARDS           1

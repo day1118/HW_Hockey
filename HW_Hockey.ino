@@ -44,7 +44,7 @@ TouchSensor TBR("TBR", BACK_RIGHT_TOUCH_SENSOR);
 
 Camera camera("CAM", CAMERA_SI_PIN, CAMERA_CLK_PIN, CAMERA_ANALOG_IN_PIN);
 
-StateMachine overallState(STATE_OVERALL_SEARCH_GOAL, NEVER_EXPIRE);
+StateMachine overallState(STATE_OVERALL_SEARCH_GOAL, TIMER_OVERALL_SEARCH_GOAL);
 StateMachine driveState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
 int servoState = STATE_SERVO_SERACH;
 int goalState = STATE_GOAL_DRIVE_OVER_MAT;
@@ -89,9 +89,11 @@ void loop() {
   setMotors();
   setServos();
   //camera.read();
- 
+
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState.getState());
+    PLOT("overallStateTime", overallState.getTimeSinceChange());
+    PLOT("wallFollowLeft", wallFollowLeft);
     PLOT("driveState", driveState.getState());
     PLOT("goalState", goalState);
     PLOT("servoState", servoState);
@@ -283,6 +285,12 @@ void setMotors()
   {
     motorBrushes.driveBackwards(MOTOR_BRUSHES_NORMAL_SPEED);
 
+    if(overallState.expired())  // If time is up, reverse direction.
+    {
+      wallFollowLeft = !wallFollowLeft;
+      overallState.setState(STATE_OVERALL_SEARCH_GOAL, TIMER_OVERALL_SEARCH_GOAL);
+    }
+
     if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
     {
       overallState.setState(STATE_OVERALL_ALIGN_GOAL, NEVER_EXPIRE);
@@ -296,8 +304,8 @@ void setMotors()
         switch(driveState.getState())
         {
           case STATE_DRIVE_FORWARDS:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
             if(TBL.on() || TBR.on() || IRBR.getFront() > IRBR_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
@@ -315,8 +323,8 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BACKOFF_RIGHT_BACK:
-            motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+            motorLeft.driveForwards(MOTOR_LEFT_BACKWARD_SPEED);
+            motorRight.driveForwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
             if(driveState.expired() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh || IRBR.getSide() > IRBR_SIDE_CLOSE_Thresh))
             { // If time is up, or nothing in front
@@ -325,8 +333,8 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
-            motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+            motorLeft.driveForwards(MOTOR_LEFT_BACKWARD_SPEED);
+            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
             if(driveState.expired())
             {
@@ -336,7 +344,7 @@ void setMotors()
 
           case STATE_DRIVE_BEND_RIGHT_RIGHT:
             motorLeft.stop();
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
             if(IRBR.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)
             { // Stalled for a long time, try again.
@@ -353,8 +361,8 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BEND_RIGHT_STRAIGHT:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
             if(driveState.expired())
             {
@@ -381,8 +389,8 @@ void setMotors()
         switch(driveState.getState())
         {
           case STATE_DRIVE_FORWARDS:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
             if(TBL.on() || TBR.on() || IRBL.getFront() > IRBL_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
@@ -400,8 +408,8 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BACKOFF_LEFT_BACK:
-            motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+            motorLeft.driveForwards(MOTOR_LEFT_BACKWARD_SPEED);
+            motorRight.driveForwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
             if(driveState.expired() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh  || IRBL.getSide() > IRBL_SIDE_CLOSE_Thresh))
             { // If time is up, or nothing in front
@@ -410,8 +418,8 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BACKOFF_LEFT_LEFT:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+            motorRight.driveForwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
             if(driveState.expired())
             {
@@ -420,7 +428,7 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BEND_LEFT_LEFT:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
             motorRight.stop();
 
             if(IRBL.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)  // TODO: Think about this
@@ -437,8 +445,8 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BEND_LEFT_STRAIGHT:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
             if(driveState.expired())
             {
@@ -585,8 +593,8 @@ void setMotors()
     switch(driveState.getState())
     {
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
-        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+        motorLeft.driveBackwards(MOTOR_LEFT_FORWARD_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_FORWARD_SPEED);
 
         if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
           // driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;   // TODO: Think about this
@@ -598,8 +606,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BACKOFF_RIGHT_BACK:
-        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+        motorLeft.driveBackwards(MOTOR_LEFT_FORWARD_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_FORWARD_SPEED);
 
         if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
           //driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;    // TODO: Think about this
@@ -611,8 +619,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BACKOFF_LEFT_LEFT:
-        motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-        motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+        motorLeft.driveBackwards(MOTOR_LEFT_FORWARD_SPEED);
+        motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
 
         if(driveState.expired())
         {
@@ -622,8 +630,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
-        motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-        motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+        motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_FORWARD_SPEED);
 
         if(driveState.expired())
         {
@@ -635,7 +643,7 @@ void setMotors()
   }
 
   #ifdef PLOT_PRINT_MOTORS_ON  
-    PLOT("driveTimer", driveTimer);
+    PLOT("driveTimer", driveState.getTimeSinceChange());
   #endif
 }
 
@@ -694,7 +702,7 @@ void setServos()
 
       if(servoTimer < millis())
       {
-        overallState.setState(STATE_OVERALL_SEARCH_GOAL, NEVER_EXPIRE);
+        overallState.setState(STATE_OVERALL_SEARCH_GOAL, TIMER_OVERALL_SEARCH_GOAL);
         driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
         servoState = STATE_SERVO_RIGHT_BALL;
       }
