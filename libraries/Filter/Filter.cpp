@@ -32,3 +32,7 @@ unsigned long Filter::getTimeSinceChange(){
 bool Filter::on(){
 	return _active;
 }
+
+void Filter::resetTimeSinceChange(){
+	_changeTime = millis();	
+}

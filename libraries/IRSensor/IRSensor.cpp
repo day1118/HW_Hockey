@@ -103,4 +103,10 @@ int IRSensor::sideGetTimeSinceChange(){
 	return _sideFilter.getTimeSinceChange();
 }
 
-	
+void IRSensor::frontResetTimeSinceChange(){
+	_frontFilter.resetTimeSinceChange();
+}
+
+void IRSensor::sideResetTimeSinceChange(){
+	_frontFilter.resetTimeSinceChange();
+}	

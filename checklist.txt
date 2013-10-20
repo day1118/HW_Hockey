@@ -1,0 +1,8 @@
+Checklist for competition:
+
+Check batteries - replace 9V.
+Calibrate colour sensors
+Enable colour sensors in code
+Enable motors in code
+Disable printing
+Check initial states of stateMachines

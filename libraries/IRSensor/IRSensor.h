@@ -13,6 +13,8 @@ public:
 	bool sideOn();
 	int frontGetTimeSinceChange();
 	int sideGetTimeSinceChange();
+	void frontResetTimeSinceChange();
+	void sideResetTimeSinceChange();
 
 private:
 	Filter _frontFilter;
