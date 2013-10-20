@@ -265,8 +265,8 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BACKOFF_LEFT_LEFT:
-            motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
+            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+            motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
 
             if(driveState.expired())
             {
