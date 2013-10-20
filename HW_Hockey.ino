@@ -341,7 +341,11 @@ void setMotors()
             motorLeft.stop();
             motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-            if(IRBR.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
+            if(IRBR.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)
+            { // Stalled for a long time, try again.
+              // Try doing wabble again.
+            }
+            else if(IRBR.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
               driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
@@ -426,7 +430,11 @@ void setMotors()
             motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
             motorRight.stop();
 
-            if(IRBL.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
+            if(IRBL.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)
+            { // Stalled for a long time, try again.
+              // Try doing wabble again.
+            }
+            else if(IRBL.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
               driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
