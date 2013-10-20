@@ -285,12 +285,6 @@ void setMotors()
   {
     motorBrushes.driveBackwards(MOTOR_BRUSHES_NORMAL_SPEED);
 
-    if(overallState.expired())  // If time is up, reverse direction.
-    {
-      wallFollowLeft = !wallFollowLeft;
-      overallState.setState(STATE_OVERALL_SEARCH_GOAL, TIMER_OVERALL_SEARCH_GOAL);
-    }
-
     if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
     {
       overallState.setState(STATE_OVERALL_ALIGN_GOAL, NEVER_EXPIRE);
@@ -299,6 +293,16 @@ void setMotors()
     }
     else
     {
+      if(overallState.expired())  // If time is up, reverse direction.
+      {
+        wallFollowLeft = !wallFollowLeft;
+        overallState.setState(STATE_OVERALL_SEARCH_GOAL, TIMER_OVERALL_SEARCH_GOAL);
+        if(wallFollowLeft)
+          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
+        else
+          driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
+      }
+      
       if(wallFollowLeft)
       {
         switch(driveState.getState())
