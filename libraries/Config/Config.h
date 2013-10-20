@@ -24,6 +24,8 @@
 #define CAMERA_DELAY_TIME                   20
 #define CAMERA_DELAY_TIME_SHORT             1
 
+#define NEVER_EXPIRE                        0
+
 #define IR_FILTER_SIZE                      3
 #define COLOUR_FILTER_SIZE                  5
 #define TOUCH_SENSOR_FILTER_SIZE            1
