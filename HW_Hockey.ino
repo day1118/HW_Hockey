@@ -300,16 +300,108 @@ void setMotors()
 
             if(TBL.on() || TBR.on() || IRBR.getFront() > IRBR_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
+              driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+              driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+            }
+            else if(IRBR.getFront() > IRBR_FRONT_FAR_Thresh && !(IRBR.getSide() > IRBR_SIDE_FAR_Thresh))
+            {   // Something in front, but not beside
+              driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
+              driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
+            }
+            else
+             if(IRBR.getSide() > IRBR_SIDE_CLOSE_Thresh)
+            {   // Something beside
+              driveState = STATE_DRIVE_BEND_RIGHT_RIGHT;
+              driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT_RIGHT;
+            }
+            break;
+
+          case STATE_DRIVE_BACKOFF_RIGHT_BACK:
+            motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+            motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+            if(driveTimer < millis() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh || IRBR.getSide() > IRBR_SIDE_CLOSE_Thresh))
+            { // If time is up, or nothing in front
+              driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
+              driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
+            }
+            break;
+
+          case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
+            motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
+            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+            if(driveTimer < millis())
+            {
+              driveState = STATE_DRIVE_FORWARDS;
+            }
+            break;
+
+          case STATE_DRIVE_BEND_RIGHT_RIGHT:
+            motorLeft.stop();
+            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+            if(IRBR.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)
+            { // Stalled for a long time, try again.
+              // Try doing wabble again.
+            }
+            else if(IRBR.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
+            { // Stalled. Backoff.
+              driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+              driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+            }
+
+            if(driveTimer < millis())
+            {
+              driveState = STATE_DRIVE_BEND_RIGHT_STRAIGHT;
+              driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT_STRAIGHT;
+            }
+            break;
+
+          case STATE_DRIVE_BEND_RIGHT_STRAIGHT:
+            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+            if(driveTimer < millis())
+            {
+              driveState = STATE_DRIVE_FORWARDS;
+            }
+            break;
+
+          case STATE_DRIVE_STOP:
+            motorLeft.stop();
+            motorRight.stop();
+
+            if(driveTimer < millis())
+            {
+              driveState = STATE_DRIVE_FORWARDS;
+            }
+            break;
+
+          default:
+            driveState = STATE_DRIVE_FORWARDS;
+        }
+      }
+      else
+      {
+        switch(driveState)
+        {
+          case STATE_DRIVE_FORWARDS:
+            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+            if(TBL.on() || TBR.on() || IRBL.getFront() > IRBL_FRONT_CLOSE_Thresh)
+            {   // Touch sensors or front is very close
               driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
             }
-            else if(IRBR.getFront() > IRBR_FRONT_FAR_Thresh && !(IRBR.getSide() > IRBR_SIDE_FAR_Thresh))
+            else if(IRBL.getFront() > IRBL_FRONT_FAR_Thresh && !(IRBL.getSide() > IRBL_SIDE_FAR_Thresh))
             {   // Something in front, but not beside
               driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
             }
             else
-             if(IRBR.getSide() > IRBR_SIDE_CLOSE_Thresh)
+             if(IRBL.getSide() > IRBL_SIDE_CLOSE_Thresh)
             {   // Something beside
               driveState = STATE_DRIVE_BEND_LEFT_LEFT;
               driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT;
@@ -320,7 +412,7 @@ void setMotors()
             motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
             motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-            if(driveTimer < millis() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh || IRBR.getSide() > IRBR_SIDE_CLOSE_Thresh))
+            if(driveTimer < millis() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh  || IRBL.getSide() > IRBL_SIDE_CLOSE_Thresh))
             { // If time is up, or nothing in front
               driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
@@ -328,8 +420,8 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BACKOFF_LEFT_LEFT:
-            motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+            motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
             if(driveTimer < millis())
             {
@@ -338,14 +430,14 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BEND_LEFT_LEFT:
-            motorLeft.stop();
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
+            motorRight.stop();
 
-            if(IRBR.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)
+            if(IRBL.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)
             { // Stalled for a long time, try again.
               // Try doing wabble again.
             }
-            else if(IRBR.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
+            else if(IRBL.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
               driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
@@ -377,95 +469,9 @@ void setMotors()
               driveState = STATE_DRIVE_FORWARDS;
             }
             break;
-        }
-      }
-      else
-      {
-        switch(driveState)
-        {
-          case STATE_DRIVE_FORWARDS:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-            if(TBL.on() || TBR.on() || IRBL.getFront() > IRBL_FRONT_CLOSE_Thresh)
-            {   // Touch sensors or front is very close
-              driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
-              driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
-            }
-            else if(IRBL.getFront() > IRBL_FRONT_FAR_Thresh && !(IRBL.getSide() > IRBL_SIDE_FAR_Thresh))
-            {   // Something in front, but not beside
-              driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
-              driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
-            }
-            else
-             if(IRBL.getSide() > IRBL_SIDE_CLOSE_Thresh)
-            {   // Something beside
-              driveState = STATE_DRIVE_BEND_RIGHT_RIGHT;
-              driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT_RIGHT;
-            }
-            break;
-
-          case STATE_DRIVE_BACKOFF_RIGHT_BACK:
-            motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
-
-            if(driveTimer < millis() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh  || IRBL.getSide() > IRBL_SIDE_CLOSE_Thresh))
-            { // If time is up, or nothing in front
-              driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
-              driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
-            }
-            break;
-
-          case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
-
-            if(driveTimer < millis())
-            {
-              driveState = STATE_DRIVE_FORWARDS;
-            }
-            break;
-
-          case STATE_DRIVE_BEND_RIGHT_RIGHT:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.stop();
-
-            if(IRBL.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)
-            { // Stalled for a long time, try again.
-              // Try doing wabble again.
-            }
-            else if(IRBL.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
-            { // Stalled. Backoff.
-              driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
-              driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
-            }
-
-            if(driveTimer < millis())
-            {
-              driveState = STATE_DRIVE_BEND_RIGHT_STRAIGHT;
-              driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT_STRAIGHT;
-            }
-            break;
-
-          case STATE_DRIVE_BEND_RIGHT_STRAIGHT:
-            motorLeft.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
-
-            if(driveTimer < millis())
-            {
-              driveState = STATE_DRIVE_FORWARDS;
-            }
-            break;
-
-          case STATE_DRIVE_STOP:
-            motorLeft.stop();
-            motorRight.stop();
-
-            if(driveTimer < millis())
-            {
-              driveState = STATE_DRIVE_FORWARDS;
-            }
-            break;
+          default:
+            driveState = STATE_DRIVE_FORWARDS;
         }
       } 
     }
