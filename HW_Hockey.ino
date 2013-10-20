@@ -164,8 +164,8 @@ void setMotors()
         switch(driveState.getState())
         {
           case STATE_DRIVE_FORWARDS:
-            motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
+            motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED + MOTOR_LEFT_FORWARD_LEFT_BEND_SPEED);
+            motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED + MOTOR_RIGHT_FORWARD_LEFT_BEND_SPEED);
 
             if(TFL.on() || TFR.on() || IRFL.getFront() > IRFL_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
@@ -248,8 +248,8 @@ void setMotors()
         switch(driveState.getState())
         {
           case STATE_DRIVE_FORWARDS:
-            motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
+            motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED + MOTOR_LEFT_FORWARD_RIGHT_BEND_SPEED);
+            motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED + MOTOR_RIGHT_FORWARD_RIGHT_BEND_SPEED);
 
             if(TFL.on() || TFR.on() || IRFR.getFront() > IRFR_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
@@ -358,8 +358,8 @@ void setMotors()
         switch(driveState.getState())
         {
           case STATE_DRIVE_FORWARDS:
-            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
+            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED + MOTOR_LEFT_BACKWARD_LEFT_BEND_SPEED);
+            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED + MOTOR_RIGHT_BACKWARD_LEFT_BEND_SPEED);
 
             if(TBL.on() || TBR.on() || IRBR.getFront() > IRBR_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
@@ -443,8 +443,8 @@ void setMotors()
         switch(driveState.getState())
         {
           case STATE_DRIVE_FORWARDS:
-            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
+            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED  + MOTOR_LEFT_BACKWARD_RIGHT_BEND_SPEED);
+            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED + MOTOR_RIGHT_BACKWARD_RIGHT_BEND_SPEED);
 
             if(TBL.on() || TBR.on() || IRBL.getFront() > IRBL_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
