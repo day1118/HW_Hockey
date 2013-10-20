@@ -44,7 +44,7 @@ TouchSensor TBR("TBR", BACK_RIGHT_TOUCH_SENSOR);
 
 Camera camera("CAM", CAMERA_SI_PIN, CAMERA_CLK_PIN, CAMERA_ANALOG_IN_PIN);
 
-StateMachine overallState(STATE_OVERALL_SEARCH_GOAL, TIMER_OVERALL_SEARCH_GOAL);
+StateMachine overallState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
 StateMachine driveState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
 int servoState = STATE_SERVO_SERACH;
 int goalState = STATE_GOAL_DRIVE_OVER_MAT;
@@ -163,8 +163,7 @@ void setMotors()
             {   // Something in front, but not beside
               driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_BACKOFF_RIGHT_RIGHT);
             }
-            else
-             if(IRFL.getSide() > IRFL_SIDE_CLOSE_Thresh)
+            else if(IRFL.getSide() > IRFL_SIDE_CLOSE_Thresh)
             {   // Something beside
               driveState.setState(STATE_DRIVE_BEND_RIGHT_RIGHT, TIMER_DRIVE_BEND_RIGHT_RIGHT);
             }
