@@ -54,7 +54,7 @@ int greenMatLeftState = GREEN_MAT_OFF;
 int greenMatRightState = GREEN_MAT_OFF;
 int CAM_direction;
 
-bool wallFollowLeft = false;
+bool wallFollowLeft = true;
 
 unsigned long driveTimer = 0, servoTimer = 0, goalTimer = 0;
 
@@ -337,40 +337,15 @@ void setMotors()
             }
             break;
 
-          case STATE_DRIVE_BACKOFF_RIGHT_BACK:
-            motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
-
-            if(driveTimer < millis() || !(IRBR.getFront() > IRBR_BACK_Thresh || IRBR.getFront() > IRBR_BACK_Thresh))
-            {
-              driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
-              driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
-            }
-            break;
-
-          case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
-
-            if(driveTimer < millis())
-            {
-              driveState = STATE_DRIVE_FORWARDS;
-            }
-            break;
-
-          case STATE_DRIVE_STOP:
-            motorLeft.stop();
-            motorRight.stop();
-
-            if(driveTimer < millis())
-            {
-              driveState = STATE_DRIVE_FORWARDS;
-            }
-            break;
-
           case STATE_DRIVE_BEND_LEFT_LEFT:
             motorLeft.stop();
             motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+            if(IRBR.sideGetTimeSinceChange() > 5000)
+            { // Stalled. Backoff.
+              driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
+              driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
+            }
 
             if(driveTimer < millis())
             {
@@ -386,16 +361,14 @@ void setMotors()
             if(driveTimer < millis())
             {
               driveState = STATE_DRIVE_FORWARDS;
-              //driveState = STATE_DRIVE_BEND_LEFT_LEFT;
-              //driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT;
             }
             break;
 
-          case STATE_DRIVE_BEND_RIGHT:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
+          case STATE_DRIVE_STOP:
+            motorLeft.stop();
+            motorRight.stop();
 
-            if(driveTimer < millis() || !(IRBL.getSide() > IRBL_SIDE_Thresh))
+            if(driveTimer < millis())
             {
               driveState = STATE_DRIVE_FORWARDS;
             }
@@ -428,27 +401,6 @@ void setMotors()
             }
             break;
 
-          case STATE_DRIVE_BACKOFF_LEFT_BACK:
-            motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
-
-            if(driveTimer < millis() || !(IRBL.getFront() > 100 || IRBR.getFront() > 100))
-            { // If time is up, or nothing in front
-              driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
-              driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
-            }
-            break;
-
-          case STATE_DRIVE_BACKOFF_LEFT_LEFT:
-            motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
-
-            if(driveTimer < millis())
-            {
-              driveState = STATE_DRIVE_FORWARDS;
-            }
-            break;
-
           case STATE_DRIVE_BACKOFF_RIGHT_BACK:
             motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
             motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
@@ -470,40 +422,15 @@ void setMotors()
             }
             break;
 
-          case STATE_DRIVE_STOP:
-            motorLeft.stop();
-            motorRight.stop();
-
-            if(driveTimer < millis())
-            {
-              driveState = STATE_DRIVE_FORWARDS;
-            }
-            break;
-
-          case STATE_DRIVE_BEND_LEFT_LEFT:
-            motorLeft.stop();
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
-
-            if(driveTimer < millis())
-            {
-              driveState = STATE_DRIVE_BEND_LEFT_STRAIGHT;
-              driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_STRAIGHT;
-            }
-            break;
-
-          case STATE_DRIVE_BEND_LEFT_STRAIGHT:
-            motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
-
-            if(driveTimer < millis())
-            {
-              driveState = STATE_DRIVE_FORWARDS;
-            }
-            break;
-
           case STATE_DRIVE_BEND_RIGHT_RIGHT:
             motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
             motorRight.stop();
+
+            if(IRBL.sideGetTimeSinceChange() > 5000)
+            { // Stalled. Backoff.
+              driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
+              driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
+            }
 
             if(driveTimer < millis())
             {
@@ -515,6 +442,16 @@ void setMotors()
           case STATE_DRIVE_BEND_RIGHT_STRAIGHT:
             motorLeft.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
             motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
+
+            if(driveTimer < millis())
+            {
+              driveState = STATE_DRIVE_FORWARDS;
+            }
+            break;
+
+          case STATE_DRIVE_STOP:
+            motorLeft.stop();
+            motorRight.stop();
 
             if(driveTimer < millis())
             {
