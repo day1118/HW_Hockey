@@ -35,7 +35,7 @@ void StateMachine::setState(int state, int stateTime){
 int StateMachine::getState(){
 	return _state;
 }
-int StateMachine::getTimeSinceChange(){
+unsigned long StateMachine::getTimeSinceChange(){
 	return millis() - _changeTime;
 }
 

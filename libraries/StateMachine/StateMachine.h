@@ -7,7 +7,7 @@ public:
 	StateMachine(int state, int stateTime);
  	void setState(int state, int stateTime);
  	int getState();
-	int getTimeSinceChange();
+	unsigned long getTimeSinceChange();
 	void resetTimeSinceChange();
 	bool expired();
 
