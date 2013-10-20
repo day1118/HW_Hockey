@@ -10,6 +10,7 @@
 		void update(bool newState);
 		bool on();
 		unsigned long getTimeSinceChange();
+		void resetTimeSinceChange();
 
 	private:
 		int _counter;
