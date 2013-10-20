@@ -298,18 +298,18 @@ void setMotors()
             motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
             motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-            if(TBL.on() || TBR.on() || IRBR.getFront() > 200)
+            if(TBL.on() || TBR.on() || IRBR.getFront() > IRBR_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
               driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
             }
-            else if(IRBR.getFront() > 100 && !(IRBR.getSide() > 100))
+            else if(IRBR.getFront() > IRBR_FRONT_FAR_Thresh && !(IRBR.getSide() > IRBR_SIDE_FAR_Thresh))
             {   // Something in front, but not beside
               driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
             }
             else
-             if(IRBR.getSide() > 300)
+             if(IRBR.getSide() > IRBR_SIDE_CLOSE_Thresh)
             {   // Something beside
               driveState = STATE_DRIVE_BEND_LEFT_LEFT;
               driveTimer = millis() + TIMER_DRIVE_BEND_LEFT_LEFT;
@@ -320,7 +320,7 @@ void setMotors()
             motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
             motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-            if(driveTimer < millis() || !(IRBL.getFront() > 100 || IRBR.getFront() > 100))
+            if(driveTimer < millis() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh))
             { // If time is up, or nothing in front
               driveState = STATE_DRIVE_BACKOFF_LEFT_LEFT;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_LEFT;
@@ -341,7 +341,7 @@ void setMotors()
             motorLeft.stop();
             motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-            if(IRBR.sideGetTimeSinceChange() > 5000)
+            if(IRBR.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
               driveState = STATE_DRIVE_BACKOFF_LEFT_BACK;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_LEFT_BACK;
@@ -383,18 +383,18 @@ void setMotors()
             motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
             motorRight.driveBackwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-            if(TBL.on() || TBR.on() || IRBL.getFront() > 350)
+            if(TBL.on() || TBR.on() || IRBL.getFront() > IRBL_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
               driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
             }
-            else if(IRBL.getFront() > 150 && !(IRBL.getSide() > 100))
+            else if(IRBL.getFront() > IRBL_FRONT_FAR_Thresh && !(IRBL.getSide() > IRBL_SIDE_FAR_Thresh))
             {   // Something in front, but not beside
               driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
             }
             else
-             if(IRBL.getSide() > 250)
+             if(IRBL.getSide() > IRBL_SIDE_CLOSE_Thresh)
             {   // Something beside
               driveState = STATE_DRIVE_BEND_RIGHT_RIGHT;
               driveTimer = millis() + TIMER_DRIVE_BEND_RIGHT_RIGHT;
@@ -405,7 +405,7 @@ void setMotors()
             motorLeft.driveForwards(MOTOR_LEFT_NORMAL_SPEED);
             motorRight.driveForwards(MOTOR_RIGHT_NORMAL_SPEED);
 
-            if(driveTimer < millis() || !(IRBL.getFront() > 100 || IRBR.getFront() > 100))
+            if(driveTimer < millis() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh))
             { // If time is up, or nothing in front
               driveState = STATE_DRIVE_BACKOFF_RIGHT_RIGHT;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_RIGHT;
@@ -426,7 +426,7 @@ void setMotors()
             motorLeft.driveBackwards(MOTOR_LEFT_NORMAL_SPEED);
             motorRight.stop();
 
-            if(IRBL.sideGetTimeSinceChange() > 5000)
+            if(IRBL.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
               driveState = STATE_DRIVE_BACKOFF_RIGHT_BACK;
               driveTimer = millis() + TIMER_DRIVE_BACKOFF_RIGHT_BACK;
