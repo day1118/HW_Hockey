@@ -19,6 +19,8 @@
 #define PLOT_PRINT_CAMERA_OFF
 #define PLOT_PRINT_US_OFF
 
+#define AUTO_REVERSE_DIRECTION 
+
 #define LED_READ_DELAY_TIME                 200
 #define LED_READ_DELAY                      delayMicroseconds(LED_READ_DELAY_TIME)
 #define CAMERA_DELAY_TIME                   20

@@ -27,7 +27,7 @@
 #define IRBR_SIDE_Thresh		IRBR_SIDE_CLOSE_Thresh
 
 #define BALL_IR_Thresh          150
-#define BALL_RED_Thresh         100
+#define BALL_RED_Thresh         60
 
 #define GML_GREEN_Thres			60	
 #define GML_RED_Thres			200

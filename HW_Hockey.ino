@@ -55,7 +55,7 @@ int greenMatLeftState = GREEN_MAT_OFF;
 int greenMatRightState = GREEN_MAT_OFF;
 int CAM_direction;
 
-bool wallFollowLeft = false;
+bool wallFollowLeft = true;
 
 unsigned long servoTimer = 0, goalTimer = 0;
 
@@ -84,7 +84,7 @@ void loop() {
   // Read each sensor in a loop
   readIRSensors();
   readTouchSensors();
-  //readColourSensors();
+  readColourSensors();
   readUSSensors();
   setMotors();
   setServos();
@@ -116,8 +116,8 @@ void readColourSensors()
   BALL.update();
 
   ballType = determineBallType();
-  greenMatLeftState = determineGMLState();
-  greenMatRightState = determineGMRState();
+  greenMatLeftState = GREEN_MAT_OFF; // determineGMLState();
+  greenMatRightState = GREEN_MAT_OFF; //determineGMRState();
 }
 
 void readTouchSensors()
@@ -147,6 +147,18 @@ void setMotors()
     }
     else
     {
+      #ifdef AUTO_REVERSE_DIRECTION
+        if(overallState.expired())  // If time is up, reverse direction.
+        {
+          wallFollowLeft = !wallFollowLeft;
+          overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
+          if(wallFollowLeft)
+            driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
+          else
+            driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
+        }
+      #endif
+
       if(wallFollowLeft)
       {
         switch(driveState.getState())
@@ -329,15 +341,17 @@ void setMotors()
     }
     else
     {
-      if(overallState.expired())  // If time is up, reverse direction.
-      {
-        wallFollowLeft = !wallFollowLeft;
-        overallState.setState(STATE_OVERALL_SEARCH_GOAL, TIMER_OVERALL_SEARCH_GOAL);
-        if(wallFollowLeft)
-          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
-        else
-          driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
-      }
+      #ifdef AUTO_REVERSE_DIRECTION
+        if(overallState.expired())  // If time is up, reverse direction.
+        {
+          wallFollowLeft = !wallFollowLeft;
+          overallState.setState(STATE_OVERALL_SEARCH_GOAL, TIMER_OVERALL_SEARCH_GOAL);
+          if(wallFollowLeft)
+            driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKOFF_RIGHT_BACK);
+          else
+            driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKOFF_LEFT_BACK);
+        }
+      #endif
       
       if(wallFollowLeft)
       {
@@ -524,7 +538,7 @@ void setMotors()
         if(goalTimer < millis() || (US_back_cm > 0 && US_back_cm < US_BACK_GOAL_MIN_DISTANCE))
         {
           if(greenMatLeftState == GREEN_MAT_ON)
-          {
+          { // TODO - This is a bad way to work out which way to go!
             goalState = STATE_GOAL_ROTATE_LEFT;
             goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
           }
@@ -664,7 +678,7 @@ void setMotors()
 
         if(driveState.expired())
         {
-          overallState.setState(STATE_OVERALL_SEARCH_BALL, NEVER_EXPIRE);
+          overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
           driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
         }
         break;
@@ -675,7 +689,7 @@ void setMotors()
 
         if(driveState.expired())
         {
-          overallState.setState(STATE_OVERALL_SEARCH_BALL, NEVER_EXPIRE);
+          overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
           driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
         }
         break;
@@ -736,7 +750,7 @@ void setServos()
       else if(ballType == BALL_NONE)
       {
         servoState = STATE_SERVO_SERACH;
-        overallState.setState(STATE_OVERALL_SEARCH_BALL, NEVER_EXPIRE);
+        overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
         driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
       }
 
@@ -755,7 +769,7 @@ void setServos()
 
       if(ballType == BALL_WRONG)
       {
-        overallState.setState(STATE_OVERALL_SEARCH_BALL, NEVER_EXPIRE);
+        overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
         driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
         servoTimer = millis() + TIMER_SERVO_WRONG_BALL;
         servoState = STATE_SERVO_WRONG_BALL;
@@ -763,7 +777,7 @@ void setServos()
       else if(ballType == BALL_NONE)
       {
         servoState = STATE_SERVO_SERACH;
-        overallState.setState(STATE_OVERALL_SEARCH_BALL, NEVER_EXPIRE);
+        overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
         driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
       }
       break;
@@ -811,7 +825,7 @@ void setServos()
 
       if(servoTimer < millis())
       {
-        overallState.setState(STATE_OVERALL_SEARCH_BALL, NEVER_EXPIRE);
+        overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
         driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
         servoState = STATE_SERVO_SERACH;
       }
