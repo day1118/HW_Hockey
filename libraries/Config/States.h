@@ -6,6 +6,7 @@
 
 #define TIMER_OVERALL_SEARCH_BALL		60000
 #define TIMER_OVERALL_SEARCH_GOAL		60000
+#define TIMER_OVERALL_ALIGN_GOAL		8000
 
 /*** Define drive states ***/
 #define STATE_DRIVE_FORWARDS            0
