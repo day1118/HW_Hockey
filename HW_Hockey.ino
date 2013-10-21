@@ -748,9 +748,6 @@ void setMotors()
         motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
         motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
-        //if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
-          // driveTimer = millis() + TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK;   // TODO: Think about this
-
         if(driveState.expired())
         {
           driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_LEFT);
@@ -763,7 +760,9 @@ void setMotors()
 
         if(driveState.expired())
         {
+          unsigned long extraTime = overallState.getTimeSinceChange() + overallState.getTimeSinceChangePrev();
           overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
+          overallState.addTimeSinceChange(extraTime);
           driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
         }
         break;
@@ -771,9 +770,6 @@ void setMotors()
       case STATE_DRIVE_BACKOFF_RIGHT_BACK:
         motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
         motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
-
-        //if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
-          //driveTimer = millis() + TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK;    // TODO: Think about this
 
         if(driveState.expired())
         {
@@ -787,7 +783,9 @@ void setMotors()
 
         if(driveState.expired())
         {
+          unsigned long extraTime = overallState.getTimeSinceChange() + overallState.getTimeSinceChangePrev();
           overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
+          overallState.addTimeSinceChange(extraTime);
           driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
         }
         break;
@@ -930,6 +928,7 @@ void setServos()
         overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
         driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
         servoState = STATE_SERVO_SERACH;
+        clearStallDetect();
       }
       break;
   }
@@ -1092,14 +1091,7 @@ bool stallDetected()
     
     if(stalled)
     {
-      IRFL.frontResetTimeSinceChange();
-      IRFL.sideResetTimeSinceChange();
-      IRFR.frontResetTimeSinceChange();
-      IRFR.sideResetTimeSinceChange();
-      IRBL.frontResetTimeSinceChange();
-      IRBL.sideResetTimeSinceChange();
-      IRBR.frontResetTimeSinceChange();
-      IRBR.sideResetTimeSinceChange();
+      clearStallDetect();
     }
 
     #ifdef PLOT_PRINT_STATUS_ON
@@ -1113,4 +1105,16 @@ bool stallDetected()
   #else
     return false;
   #endif
+}
+
+void clearStallDetect()
+{
+  IRFL.frontResetTimeSinceChange();
+  IRFL.sideResetTimeSinceChange();
+  IRFR.frontResetTimeSinceChange();
+  IRFR.sideResetTimeSinceChange();
+  IRBL.frontResetTimeSinceChange();
+  IRBL.sideResetTimeSinceChange();
+  IRBR.frontResetTimeSinceChange();
+  IRBR.sideResetTimeSinceChange();
 }
