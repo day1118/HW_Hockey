@@ -615,7 +615,7 @@ void setMotors()
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
           }
-          else if(CAM_direction == BEACON_LEFT || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_LEFT + TIMER_GOAL_ROTATE_LEFT_STOP)) > GOAL_ROTATE_TIME_MAX)
+          else if((CAM_direction == BEACON_LEFT && beaconDetected()) || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_LEFT + TIMER_GOAL_ROTATE_LEFT_STOP)) > GOAL_ROTATE_TIME_MAX)
           {
             goalState = STATE_GOAL_ROTATE_RIGHT;
             goalAlignRotateAttempts = 0;
@@ -649,7 +649,7 @@ void setMotors()
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
           }
-          else if(CAM_direction == BEACON_RIGHT || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_RIGHT + TIMER_GOAL_ROTATE_RIGHT_STOP)) > GOAL_ROTATE_TIME_MAX))
+          else if((CAM_direction == BEACON_RIGHT && beaconDetected()) || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_RIGHT + TIMER_GOAL_ROTATE_RIGHT_STOP)) > GOAL_ROTATE_TIME_MAX))
           {
             goalState = STATE_GOAL_ROTATE_LEFT;
             goalAlignRotateAttempts = 0;
@@ -706,7 +706,7 @@ void setMotors()
             }
             else
             {
-              if(CAM_direction == BEACON_RIGHT)
+              if(CAM_direction == BEACON_RIGHT && beaconDetected())
               {
                 goalState = STATE_GOAL_ROTATE_LEFT;
                 goalAlignRotateAttempts = 0;
@@ -760,7 +760,7 @@ void setMotors()
   else if(overallState.getState() == STATE_OVERALL_AVOID_GOAL)
   { 		// Could be done better by locking for camera, then driving away.
     CAM_direction = camera.read();
-    if(CAM_direction != BEACON_NONE && US_back_cm > 0 && US_back_cm < 100)
+    if(beaconDetected())
     {
       if(driveState.getState() != STATE_DRIVE_FORWARDS)
         driveState.setState(STATE_DRIVE_FORWARDS, STATE_DRIVE_BACKOFF_LEFT_BACK);
@@ -1071,7 +1071,7 @@ void readUSSensors()
 
 bool alignedToGoal()
 {	// May need to check if peak is centered more accuratly.
-  return (CAM_direction == BEACON_CENTER && US_back_cm > 0 && US_back_cm < 100);
+  return (CAM_direction == BEACON_CENTER && beaconDetected());
 }
 
 bool stallDetected()
@@ -1158,4 +1158,9 @@ void clearStallDetect()
   IRBL.sideResetTimeSinceChange();
   IRBR.frontResetTimeSinceChange();
   IRBR.sideResetTimeSinceChange();
+}
+
+bool beaconDetected()
+{
+  return (CAM_direction != BEACON_NONE && US_back_cm > 0 && US_back_cm < 100)
 }
