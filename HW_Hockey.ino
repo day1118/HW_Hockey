@@ -742,6 +742,12 @@ void setMotors()
   }
   else if(overallState.getState() == STATE_OVERALL_AVOID_GOAL)
   { 		// Could be done better by locking for camera, then driving away.
+    CAM_direction = camera.read();
+    if(CAM_direction != BEACON_NONE && US_back_cm > 0 && US_back_cm < 100)
+    {
+      if(driveState.getState() != STATE_DRIVE_FORWARDS)
+        driveState.setState(STATE_DRIVE_FORWARDS, STATE_DRIVE_BACKOFF_LEFT_BACK);
+    }
     switch(driveState.getState())
     {
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
@@ -789,6 +795,20 @@ void setMotors()
           driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
         }
         break;
+
+      case STATE_DRIVE_FORWARDS:
+        motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
+        motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
+
+        if(driveState.expired())
+        {
+          unsigned long extraTime = overallState.getTimeSinceChange() + overallState.getTimeSinceChangePrev();
+          overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
+          overallState.addTimeSinceChange(extraTime);
+          driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
+        }
+        break;
+
     }
   }
   else
