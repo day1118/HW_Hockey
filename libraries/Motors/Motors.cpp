@@ -14,7 +14,7 @@ Motor::Motor(String name, int pinA, int pinB, int pinEnable){
 
 	digitalWrite(_pinA, LOW);
 	digitalWrite(_pinB, LOW);
-
+	analogWrite(_pinEnable, _pwm);
 }
 
 Motor::Motor(String name){
