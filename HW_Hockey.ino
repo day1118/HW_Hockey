@@ -576,7 +576,7 @@ void setMotors()
 
     if(overallState.expired() && !(goalState == STATE_GOAL_KICK || goalState == STATE_GOAL_KICK_DELAY))
     {
-      overallState.setState(STATE_OVERALL_AVOID_GOAL);
+      overallState.setState(STATE_OVERALL_AVOID_GOAL, NEVER_EXPIRE);
     }
     else
     {
@@ -649,7 +649,7 @@ void setMotors()
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
           }
-          else if((CAM_direction == BEACON_RIGHT && beaconDetected()) || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_RIGHT + TIMER_GOAL_ROTATE_RIGHT_STOP)) > GOAL_ROTATE_TIME_MAX))
+          else if((CAM_direction == BEACON_RIGHT && beaconDetected()) || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_RIGHT + TIMER_GOAL_ROTATE_RIGHT_STOP)) > GOAL_ROTATE_TIME_MAX)
           {
             goalState = STATE_GOAL_ROTATE_LEFT;
             goalAlignRotateAttempts = 0;
@@ -807,7 +807,7 @@ void setMotors()
         if(driveState.expired())
         {
           unsigned long extraTime = 0;
-          if(overallState.getStatePrev == STATE_OVERALL_SEARCH_BALL)
+          if(overallState.getStatePrev() == STATE_OVERALL_SEARCH_BALL)
             extraTime = overallState.getTimeSinceChange() + overallState.getTimeSinceChangePrev();
           overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
           overallState.addTimeSinceChange(extraTime);
@@ -822,7 +822,7 @@ void setMotors()
         if(driveState.expired())
         {
           unsigned long extraTime = 0;
-          if(overallState.getStatePrev == STATE_OVERALL_SEARCH_BALL)
+          if(overallState.getStatePrev() == STATE_OVERALL_SEARCH_BALL)
             extraTime = overallState.getTimeSinceChange() + overallState.getTimeSinceChangePrev();
           overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
           overallState.addTimeSinceChange(extraTime);
@@ -1162,5 +1162,5 @@ void clearStallDetect()
 
 bool beaconDetected()
 {
-  return (CAM_direction != BEACON_NONE && US_back_cm > 0 && US_back_cm < 100)
+  return (CAM_direction != BEACON_NONE && US_back_cm > 0 && US_back_cm < 100);
 }
