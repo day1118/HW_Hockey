@@ -1036,7 +1036,7 @@ bool alignedToGoal()
 
 bool stallDetected()
 {
-  //#ifdef STALL_DETECTION_ON
+  #ifdef STALL_DETECTION_ON
     int unchangedSensors = 0;
     int unchangedHighSensors = 0;
     if(IRFL.frontGetTimeSinceChange() > STALL_TIME)
@@ -1088,14 +1088,9 @@ bool stallDetected()
         unchangedHighSensors ++;
     }
 
-    bool stalled = (unchangedHighSensors > 2 || unchangedSensors > 6);
+    bool stalled = (unchangedHighSensors >= 2 || unchangedSensors >= 6);
     
     if(stalled)
-      stalledState.setState(STATE_STALLED, TIMER_STALLED_TIMEOUT);
-    else
-      stalledState.setState(STATE_NOT_STALLED, NEVER_EXPIRE);
-
-    if(stalledState.expired())
     {
       IRFL.frontResetTimeSinceChange();
       IRFL.sideResetTimeSinceChange();
@@ -1107,15 +1102,15 @@ bool stallDetected()
       IRBR.sideResetTimeSinceChange();
     }
 
-    //#ifdef PLOT_PRINT_STATUS_ON
+    #ifdef PLOT_PRINT_STATUS_ON
       PLOT("unchangedHighSensors", unchangedHighSensors);
       PLOT("unchangedSensors", unchangedSensors);
       PLOT("stalled", stalled);
-    //#endif
+    #endif
 
     return stalled;
 
-  //#else
-  //  return false;
-  //#endif
+  #else
+    return false;
+  #endif
 }

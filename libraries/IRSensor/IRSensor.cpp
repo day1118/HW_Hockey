@@ -108,5 +108,5 @@ void IRSensor::frontResetTimeSinceChange(){
 }
 
 void IRSensor::sideResetTimeSinceChange(){
-	_frontFilter.resetTimeSinceChange();
+	_sideFilter.resetTimeSinceChange();
 }	
