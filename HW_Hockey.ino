@@ -601,8 +601,8 @@ void setMotors()
         break;
 
       case STATE_GOAL_ROTATE_RIGHT:
-        motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
-        motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
+        motorLeft.driveForwards(MOTOR_LEFT_GOAL_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
 
         if(alignedToGoal())   // TODO - Could stop when it is to the left, then adjust.
         {
@@ -714,7 +714,7 @@ void setMotors()
   }
   else if(overallState.getState() == STATE_OVERALL_AVOID_GOAL)
   { 		// Could be done better by locking for camera, then driving away.
-    switch(driveState.getState())
+    /*switch(driveState.getState())
     {
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
         motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
@@ -763,7 +763,12 @@ void setMotors()
           driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
         }
         break;
-    }
+    }*/
+    overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
+  }
+  else
+  {
+    overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL); 
   }
 
   #ifdef PLOT_PRINT_MOTORS_ON  

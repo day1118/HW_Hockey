@@ -4,8 +4,8 @@
 class StateMachine
 {
 public:
-	StateMachine(int state, int stateTime);
- 	void setState(int state, int stateTime);
+	StateMachine(int state, unsigned long stateTime);
+ 	void setState(int state, unsigned long stateTime);
  	int getState();
 	unsigned long getTimeSinceChange();
 	void resetTimeSinceChange();

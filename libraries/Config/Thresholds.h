@@ -31,7 +31,7 @@
 
 #define GML_GREEN_Thres			80	
 #define GML_RED_Thres			300
-
+	
 #define GMR_GREEN_Thres			180
 #define GMR_RED_Thres			200
 

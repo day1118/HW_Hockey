@@ -1,6 +1,6 @@
 #include "StateMachine.h"
 
-StateMachine::StateMachine(int state, int stateTime) {
+StateMachine::StateMachine(int state, unsigned long stateTime) {
 	_state = state;
 	_changeTime = millis();
 	if(stateTime == NEVER_EXPIRE)
@@ -15,7 +15,7 @@ StateMachine::StateMachine(int state, int stateTime) {
 	
 }
 
-void StateMachine::setState(int state, int stateTime){
+void StateMachine::setState(int state, unsigned long stateTime){
 	if(_state != state)
 	{
 		_state = state;
