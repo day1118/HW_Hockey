@@ -47,10 +47,10 @@ Camera camera("CAM", CAMERA_SI_PIN, CAMERA_CLK_PIN, CAMERA_ANALOG_IN_PIN);
 StateMachine overallState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
 StateMachine driveState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
 int servoState = STATE_SERVO_SERACH;
-int goalState = STATE_GOAL_DRIVE_OVER_MAT;
+int goalState = STATE_GOAL_DRIVE_OVER_MAT_LEFT;
 
 int servoFPos, servoBPos, servoKPos;
-int ballType = BALL_WRONG;
+int ballType = BALL_NONE;
 int greenMatLeftState = GREEN_MAT_OFF;
 int greenMatRightState = GREEN_MAT_OFF;
 int CAM_direction;
@@ -88,7 +88,10 @@ void loop() {
   readUSSensors();
   setMotors();
   setServos();
-  //camera.read();
+
+  #if defined PLOT_PRINT_CAMERA_ON_DETAIL && defined PLOT_PRINT_ON
+    camera.read();
+  #endif
 
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState.getState());
@@ -116,8 +119,8 @@ void readColourSensors()
   BALL.update();
 
   ballType = determineBallType();
-  greenMatLeftState = GREEN_MAT_OFF; // determineGMLState();
-  greenMatRightState = GREEN_MAT_OFF; //determineGMRState();
+  greenMatLeftState = determineGMLState();
+  greenMatRightState = determineGMRState();
 }
 
 void readTouchSensors()
@@ -174,7 +177,7 @@ void setMotors()
             else if(IRFL.getFront() > IRFL_FRONT_FAR_Thresh && !(IRFL.getSide() > IRFL_SIDE_FAR_Thresh))
             {   // Something in front, but not beside
               driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_RIGHT);
-            }
+            } 
             else if(IRFL.getSide() > IRFL_SIDE_CLOSE_Thresh)
             {   // Something beside
               driveState.setState(STATE_DRIVE_BEND_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BEND_RIGHT_RIGHT);
@@ -193,7 +196,8 @@ void setMotors()
 
           case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
             motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
-            motorRight.driveBackwards(MOTOR_RIGHT_FORWARD_SPEED);
+            //motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
+            motorRight.stop();
 
             if(driveState.expired())
             {
@@ -208,6 +212,10 @@ void setMotors()
             if(IRBR.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)
             { // Stalled for a long time, try again.
               // Try doing wabble again.
+              if(driveState.expired())
+              {
+                driveState.setState(STATE_DRIVE_BEND_RIGHT_STRAIGHT, TIMER_DRIVE_FORWARD_BEND_RIGHT_STRAIGHT);
+              }
             }
             else if(IRFL.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
@@ -254,13 +262,12 @@ void setMotors()
             if(TFL.on() || TFR.on() || IRFR.getFront() > IRFR_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
               driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
-            }
+            } 
             else if(IRFR.getFront() > IRFR_FRONT_FAR_Thresh && !(IRFR.getSide() > IRFR_SIDE_FAR_Thresh))
             {   // Something in front, but not beside
               driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_LEFT);
-            }
-            else
-             if(IRFR.getSide() > IRFR_SIDE_CLOSE_Thresh)
+            } 
+            else if(IRFR.getSide() > IRFR_SIDE_CLOSE_Thresh)
             {   // Something beside
               driveState.setState(STATE_DRIVE_BEND_LEFT_LEFT, TIMER_DRIVE_FORWARD_BEND_LEFT_LEFT);
             }
@@ -277,7 +284,8 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BACKOFF_LEFT_LEFT:
-            motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+            //motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+            motorLeft.stop();
             motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
 
             if(driveState.expired())
@@ -293,6 +301,10 @@ void setMotors()
             if(IRFR.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)  // TODO: Think about this
             { // Stalled for a long time, try again.
               // Try doing wabble again.
+             if(driveState.expired())
+              {
+                driveState.setState(STATE_DRIVE_BEND_RIGHT_STRAIGHT, TIMER_DRIVE_FORWARD_BEND_RIGHT_STRAIGHT);
+              }
             }
             else if(IRFR.sideGetTimeSinceChange() > CORNER_STALL_DETECT_TIME)
             { // Stalled. Backoff.
@@ -336,8 +348,11 @@ void setMotors()
     if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
     {
       overallState.setState(STATE_OVERALL_ALIGN_GOAL, NEVER_EXPIRE);
-      goalState = STATE_GOAL_DRIVE_OVER_MAT;
       goalTimer = millis() + TIMER_GOAL_DRIVE_OVER_MAT;
+      if(greenMatLeftState == GREEN_MAT_ON)
+        goalState = STATE_GOAL_DRIVE_OVER_MAT_RIGHT;
+      else
+        goalState = STATE_GOAL_DRIVE_OVER_MAT_LEFT;
     }
     else
     {
@@ -377,8 +392,8 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BACKOFF_RIGHT_BACK:
-            motorLeft.driveForwards(MOTOR_LEFT_BACKWARD_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_BACKWARD_SPEED);
+            motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
+            motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
 
             if(driveState.expired() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh || IRBR.getSide() > IRBR_SIDE_CLOSE_Thresh))
             { // If time is up, or nothing in front
@@ -387,7 +402,7 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
-            motorLeft.driveForwards(MOTOR_LEFT_BACKWARD_SPEED);
+            motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
             motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
             if(driveState.expired())
@@ -462,8 +477,8 @@ void setMotors()
             break;
 
           case STATE_DRIVE_BACKOFF_LEFT_BACK:
-            motorLeft.driveForwards(MOTOR_LEFT_BACKWARD_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_BACKWARD_SPEED);
+            motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
+            motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
 
             if(driveState.expired() || !(IRBL.getFront() > IRBL_FRONT_FAR_Thresh || IRBR.getFront() > IRBR_FRONT_FAR_Thresh  || IRBL.getSide() > IRBL_SIDE_CLOSE_Thresh))
             { // If time is up, or nothing in front
@@ -473,7 +488,7 @@ void setMotors()
 
           case STATE_DRIVE_BACKOFF_LEFT_LEFT:
             motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_BACKWARD_SPEED);
+            motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
 
             if(driveState.expired())
             {
@@ -531,56 +546,91 @@ void setMotors()
 
     switch(goalState)
     {
-      case STATE_GOAL_DRIVE_OVER_MAT:
+      case STATE_GOAL_DRIVE_OVER_MAT_LEFT:
         motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
         motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
 
         if(goalTimer < millis() || (US_back_cm > 0 && US_back_cm < US_BACK_GOAL_MIN_DISTANCE))
         {
-          if(greenMatLeftState == GREEN_MAT_ON)
-          { // TODO - This is a bad way to work out which way to go!
-            goalState = STATE_GOAL_ROTATE_LEFT;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
-          }
-          else
-          {
-            goalState = STATE_GOAL_ROTATE_RIGHT;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
-          }
+          goalState = STATE_GOAL_ROTATE_LEFT;
+          goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
+        }
+        break;
+
+        case STATE_GOAL_DRIVE_OVER_MAT_RIGHT:
+        motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
+
+        if(goalTimer < millis() || (US_back_cm > 0 && US_back_cm < US_BACK_GOAL_MIN_DISTANCE))
+        {
+          goalState = STATE_GOAL_ROTATE_RIGHT;
+          goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
         }
         break;
 
         case STATE_GOAL_ROTATE_LEFT:
-          motorLeft.driveForwards(MOTOR_LEFT_GOAL_SPEED);
-          motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
-
-          if(alignedToGoal() || goalTimer < millis())   // TODO - Could stop when it is to the left, then adjust.
-          {
-            goalState = STATE_GOAL_ROTATE_STOP;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
-          }
-          else if(CAM_direction == BEACON_RIGHT)
-          {
-            goalState = STATE_GOAL_ROTATE_RIGHT;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
-          }
-          break;
-
-        case STATE_GOAL_ROTATE_RIGHT:
           motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
           motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
 
-          if(alignedToGoal() || goalTimer < millis())     // TODO - Could stop when it is to the right, then adjust.
+          if(alignedToGoal())   // TODO - Could stop when it is to the left, then adjust.
           {
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
           }
           else if(CAM_direction == BEACON_LEFT)
           {
+            goalState = STATE_GOAL_ROTATE_RIGHT;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
+          }
+          else if(goalTimer < millis())
+          {
+            goalState = STATE_GOAL_ROTATE_LEFT_STOP;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT_STOP;
+          }
+          break;
+
+          case STATE_GOAL_ROTATE_LEFT_STOP:
+            motorLeft.stop();
+            motorRight.stop();
+
+            if(goalTimer < millis())
+            {
+              goalState = STATE_GOAL_ROTATE_LEFT;
+              goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
+            }
+            break;
+
+        case STATE_GOAL_ROTATE_RIGHT:
+          motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
+          motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
+
+          if(alignedToGoal())   // TODO - Could stop when it is to the left, then adjust.
+          {
+            goalState = STATE_GOAL_ROTATE_STOP;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
+          }
+          else if(CAM_direction == BEACON_RIGHT)
+          {
             goalState = STATE_GOAL_ROTATE_LEFT;
             goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
           }
+          else if(goalTimer < millis())
+          {
+            goalState = STATE_GOAL_ROTATE_RIGHT_STOP;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT_STOP;
+          }
           break;
+
+          case STATE_GOAL_ROTATE_RIGHT_STOP:
+            motorLeft.stop();
+            motorRight.stop();
+
+            if(goalTimer < millis())
+            {
+              goalState = STATE_GOAL_ROTATE_RIGHT;
+              goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
+            }
+            break;
 
         case STATE_GOAL_ROTATE_STOP:
           motorLeft.stop();
@@ -595,7 +645,7 @@ void setMotors()
             }
             else
             {
-              goalState = STATE_GOAL_DRIVE_OVER_MAT; // Go back and check that we are aligned right.
+              goalState = STATE_GOAL_DRIVE_OVER_MAT_LEFT; // Go back and check that we are aligned right.
               goalTimer = 0;
             }
           }
@@ -614,7 +664,7 @@ void setMotors()
             }
             else
             {
-              goalState = STATE_GOAL_DRIVE_OVER_MAT; // Go back and check that we are aligned right.
+              goalState = STATE_GOAL_DRIVE_OVER_MAT_LEFT; // Go back and check that we are aligned right.
               goalTimer = 0;						 //  Do not drive onto the mat in the process.
             }
 
@@ -647,8 +697,8 @@ void setMotors()
     switch(driveState.getState())
     {
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
-        motorLeft.driveBackwards(MOTOR_LEFT_FORWARD_SPEED);
-        motorRight.driveBackwards(MOTOR_RIGHT_FORWARD_SPEED);
+        motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
         if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
           // driveTimer = millis() + TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK;   // TODO: Think about this
@@ -660,8 +710,8 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BACKOFF_RIGHT_BACK:
-        motorLeft.driveBackwards(MOTOR_LEFT_FORWARD_SPEED);
-        motorRight.driveBackwards(MOTOR_RIGHT_FORWARD_SPEED);
+        motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
         if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
           //driveTimer = millis() + TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK;    // TODO: Think about this
@@ -673,7 +723,7 @@ void setMotors()
         break;
 
       case STATE_DRIVE_BACKOFF_LEFT_LEFT:
-        motorLeft.driveBackwards(MOTOR_LEFT_FORWARD_SPEED);
+        motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
         motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
 
         if(driveState.expired())
@@ -685,7 +735,7 @@ void setMotors()
 
       case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
         motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
-        motorRight.driveBackwards(MOTOR_RIGHT_FORWARD_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
         if(driveState.expired())
         {
