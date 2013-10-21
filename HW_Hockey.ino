@@ -176,18 +176,21 @@ void setMotors()
             motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED + MOTOR_LEFT_FORWARD_LEFT_BEND_SPEED);
             motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED + MOTOR_RIGHT_FORWARD_LEFT_BEND_SPEED);
 
-            if(TFL.on() || TFR.on() || IRFL.getFront() > IRFL_FRONT_CLOSE_Thresh)
+            /*if(TFL.on() || TFR.on() || IRFL.getFront() > IRFL_FRONT_CLOSE_Thresh)
             {   // Touch sensors or front is very close
               driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
             }
-            else if(IRFL.getFront() > IRFL_FRONT_FAR_Thresh && !(IRFL.getSide() > IRFL_SIDE_FAR_Thresh))
+            else */
+              if(IRFL.getFront() > IRFL_FRONT_FAR_Thresh)
             {   // Something in front, but not beside
-              driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_RIGHT);
-            } 
-            else if(IRFL.getSide() > IRFL_SIDE_CLOSE_Thresh)
+              //driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_RIGHT);
+              driveState.setState(STATE_DRIVE_BEND_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BEND_RIGHT_RIGHT);
+            } /*
+            else 
+            if(IRFL.getSide() > IRFL_SIDE_CLOSE_Thresh)
             {   // Something beside
               driveState.setState(STATE_DRIVE_BEND_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BEND_RIGHT_RIGHT);
-            }
+            }*/
             break;
 
           case STATE_DRIVE_BACKOFF_RIGHT_BACK:
@@ -213,9 +216,9 @@ void setMotors()
 
           case STATE_DRIVE_BEND_RIGHT_RIGHT:
             motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
-            motorRight.stop();
+            motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
-            if(IRBR.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)
+            /*if(IRBR.sideGetTimeSinceChange() > 2 * CORNER_STALL_DETECT_TIME)
             { // Stalled for a long time, try again.
               // Try doing wabble again.
               if(driveState.expired())
@@ -227,15 +230,16 @@ void setMotors()
             { // Stalled. Backoff.
               driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
             }
-            else if(driveState.expired())
+            else*/
+            if(driveState.expired())
             {
               driveState.setState(STATE_DRIVE_BEND_RIGHT_STRAIGHT, TIMER_DRIVE_FORWARD_BEND_RIGHT_STRAIGHT);
             }
             break;
 
           case STATE_DRIVE_BEND_RIGHT_STRAIGHT:
-            motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
-            motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
+            motorLeft.stop();
+            motorRight.stop();
 
             if(driveState.expired())
             {
