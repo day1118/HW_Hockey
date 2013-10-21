@@ -46,6 +46,7 @@ Camera camera("CAM", CAMERA_SI_PIN, CAMERA_CLK_PIN, CAMERA_ANALOG_IN_PIN);
 
 StateMachine overallState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
 StateMachine driveState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
+StateMachine stalledState(STATE_NOT_STALLED, NEVER_EXPIRE);
 int servoState = STATE_SERVO_SERACH;
 int goalState = STATE_GOAL_DRIVE_OVER_MAT_LEFT;
 
@@ -88,6 +89,7 @@ void loop() {
   readUSSensors();
   setMotors();
   setServos();
+  stallDetected();
 
   #if defined PLOT_PRINT_CAMERA_ON_DETAIL && defined PLOT_PRINT_ON
     camera.read();
@@ -164,8 +166,11 @@ void setMotors()
 
       if(wallFollowLeft)
       {
-
-        if(TFL.on() || TFR.on())
+        if(stallDetected())
+        {
+          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
+        }
+        else if(TFL.on() || TFR.on())
         {   // Touch sensors or front is very close
           driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
         }
@@ -259,11 +264,15 @@ void setMotors()
       }
       else
       {
-        if(TFL.on() || TFR.on() || IRFR.getFront() > IRFR_FRONT_CLOSE_Thresh)
+        if(stallDetected())
+        {
+          driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
+        }
+        else if(TFL.on() || TFR.on() || IRFR.getFront() > IRFR_FRONT_CLOSE_Thresh)
         {   // Touch sensors or front is very close
           driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
         } 
-            
+
         switch(driveState.getState())
         {
           case STATE_DRIVE_FORWARDS:
@@ -1025,4 +1034,90 @@ void readUSSensors()
 bool alignedToGoal()
 {	// May need to check if peak is centered more accuratly.
   return (CAM_direction == BEACON_CENTER && US_back_cm > 0 && US_back_cm < 100);
+}
+
+bool stallDetected()
+{
+  //#ifdef STALL_DETECTION_ON
+    int unchangedSensors = 0;
+    int unchangedHighSensors = 0;
+    if(IRFL.frontGetTimeSinceChange() > STALL_TIME)
+    {
+      unchangedSensors ++;
+      if(IRFL.frontOn())
+        unchangedHighSensors ++;
+    }
+    if(IRFL.sideGetTimeSinceChange() > STALL_TIME)
+    {
+      unchangedSensors ++;
+      if(IRFL.sideOn())
+        unchangedHighSensors ++;
+    }
+    if(IRFR.frontGetTimeSinceChange() > STALL_TIME)
+    {
+      unchangedSensors ++;
+      if(IRFR.frontOn())
+        unchangedHighSensors ++;
+    }
+    if(IRFR.sideGetTimeSinceChange() > STALL_TIME)
+    {
+      unchangedSensors ++;
+      if(IRFR.sideOn())
+        unchangedHighSensors ++;
+    }
+    if(IRBL.frontGetTimeSinceChange() > STALL_TIME)
+    {
+      unchangedSensors ++;
+      if(IRBL.frontOn())
+        unchangedHighSensors ++;
+    }
+    if(IRBL.sideGetTimeSinceChange() > STALL_TIME)
+    {
+      unchangedSensors ++;
+      if(IRBL.sideOn())
+        unchangedHighSensors ++;
+    }
+    if(IRBR.frontGetTimeSinceChange() > STALL_TIME)
+    {
+      unchangedSensors ++;
+      if(IRBR.frontOn())
+        unchangedHighSensors ++;
+    }
+    if(IRBR.sideGetTimeSinceChange() > STALL_TIME)
+    {
+      unchangedSensors ++;
+      if(IRBR.sideOn())
+        unchangedHighSensors ++;
+    }
+
+    bool stalled = (unchangedHighSensors > 2 || unchangedSensors > 6);
+    
+    if(stalled)
+      stalledState.setState(STATE_STALLED, TIMER_STALLED_TIMEOUT);
+    else
+      stalledState.setState(STATE_NOT_STALLED, NEVER_EXPIRE);
+
+    if(stalledState.expired())
+    {
+      IRFL.frontResetTimeSinceChange();
+      IRFL.sideResetTimeSinceChange();
+      IRFR.frontResetTimeSinceChange();
+      IRFR.sideResetTimeSinceChange();
+      IRBL.frontResetTimeSinceChange();
+      IRBL.sideResetTimeSinceChange();
+      IRBR.frontResetTimeSinceChange();
+      IRBR.sideResetTimeSinceChange();
+    }
+
+    //#ifdef PLOT_PRINT_STATUS_ON
+      PLOT("unchangedHighSensors", unchangedHighSensors);
+      PLOT("unchangedSensors", unchangedSensors);
+      PLOT("stalled", stalled);
+    //#endif
+
+    return stalled;
+
+  //#else
+  //  return false;
+  //#endif
 }
