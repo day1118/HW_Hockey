@@ -63,6 +63,8 @@ unsigned long servoTimer = 0, goalTimer = 0;
 unsigned int US_back_cm;
 unsigned int US_front_cm;
 
+int goalAlignRotateAttempts = 0;
+
 void setup() {
 
   pinMode(CAMERA_CLK_PIN, OUTPUT);
@@ -587,6 +589,7 @@ void setMotors()
           if(goalTimer < millis() || (US_back_cm > 0 && US_back_cm < US_BACK_GOAL_MIN_DISTANCE))
           {
             goalState = STATE_GOAL_ROTATE_LEFT;
+            goalAlignRotateAttempts = 0;
             goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
           }
           break;
@@ -598,6 +601,7 @@ void setMotors()
           if(goalTimer < millis() || (US_back_cm > 0 && US_back_cm < US_BACK_GOAL_MIN_DISTANCE))
           {
             goalState = STATE_GOAL_ROTATE_RIGHT;
+            goalAlignRotateAttempts = 0;
             goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
           }
           break;
@@ -611,15 +615,17 @@ void setMotors()
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
           }
-          else if(CAM_direction == BEACON_LEFT)
+          else if(CAM_direction == BEACON_LEFT || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_LEFT + TIMER_GOAL_ROTATE_LEFT_STOP)) > GOAL_ROTATE_TIME_MAX)
           {
             goalState = STATE_GOAL_ROTATE_RIGHT;
+            goalAlignRotateAttempts = 0;
             goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
           } 
           else if(goalTimer < millis())
           {
             goalState = STATE_GOAL_ROTATE_LEFT_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT_STOP;
+            goalAlignRotateAttempts ++;
           }
           break;
 
@@ -643,15 +649,17 @@ void setMotors()
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
           }
-          else if(CAM_direction == BEACON_RIGHT)
+          else if(CAM_direction == BEACON_RIGHT || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_RIGHT + TIMER_GOAL_ROTATE_RIGHT_STOP)) > GOAL_ROTATE_TIME_MAX))
           {
             goalState = STATE_GOAL_ROTATE_LEFT;
+            goalAlignRotateAttempts = 0;
             goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
           }
           else if(goalTimer < millis())
           {
             goalState = STATE_GOAL_ROTATE_RIGHT_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT_STOP;
+            goalAlignRotateAttempts ++;
           }
           break;
 
@@ -701,11 +709,13 @@ void setMotors()
               if(CAM_direction == BEACON_RIGHT)
               {
                 goalState = STATE_GOAL_ROTATE_LEFT;
+                goalAlignRotateAttempts = 0;
                 goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
               }
               else
               {
                 goalState = STATE_GOAL_ROTATE_RIGHT;
+                goalAlignRotateAttempts = 0;
                 goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
               }
             }
