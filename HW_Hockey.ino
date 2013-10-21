@@ -139,16 +139,14 @@ void setMotors()
   {
     motorBrushes.driveForwards(MOTOR_BRUSHES_NORMAL_SPEED);
 
-    if(greenMatRightState == GREEN_MAT_ON)
+    if(greenMatRightState == GREEN_MAT_ON || greenMatLeftState == GREEN_MAT_ON)
     {
       //TODO - Handle avoiding goal.
       overallState.setState(STATE_OVERALL_AVOID_GOAL, NEVER_EXPIRE);
-      driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
-    }
-    else if(greenMatLeftState == GREEN_MAT_ON)
-    {
-      overallState.setState(STATE_OVERALL_AVOID_GOAL, NEVER_EXPIRE);
-      driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
+      if(wallFollowLeft)  
+        driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
+      else
+        driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
     }
     else
     {
