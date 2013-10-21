@@ -735,31 +735,18 @@ void setMotors()
   }
   else if(overallState.getState() == STATE_OVERALL_AVOID_GOAL)
   { 		// Could be done better by locking for camera, then driving away.
-    /*switch(driveState.getState())
+    switch(driveState.getState())
     {
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
         motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
         motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
-        if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
+        //if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
           // driveTimer = millis() + TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK;   // TODO: Think about this
 
         if(driveState.expired())
         {
           driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_LEFT);
-        }
-        break;
-
-      case STATE_DRIVE_BACKOFF_RIGHT_BACK:
-        motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
-        motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
-
-        if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
-          //driveTimer = millis() + TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK;    // TODO: Think about this
-
-        if(driveState.expired())
-        {
-          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_RIGHT);
         }
         break;
 
@@ -774,6 +761,19 @@ void setMotors()
         }
         break;
 
+      case STATE_DRIVE_BACKOFF_RIGHT_BACK:
+        motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+        motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
+
+        //if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
+          //driveTimer = millis() + TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK;    // TODO: Think about this
+
+        if(driveState.expired())
+        {
+          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_RIGHT);
+        }
+        break;
+
       case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
         motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
         motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
@@ -784,8 +784,7 @@ void setMotors()
           driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
         }
         break;
-    }*/
-    overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
+    }
   }
   else
   {
