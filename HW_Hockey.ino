@@ -557,7 +557,7 @@ void setMotors()
         }
         break;
 
-        case STATE_GOAL_DRIVE_OVER_MAT_RIGHT:
+      case STATE_GOAL_DRIVE_OVER_MAT_RIGHT:
         motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
         motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
 
@@ -568,128 +568,148 @@ void setMotors()
         }
         break;
 
-        case STATE_GOAL_ROTATE_LEFT:
-          motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
-          motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
+      case STATE_GOAL_ROTATE_LEFT:
+        motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
+        motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
 
-          if(alignedToGoal())   // TODO - Could stop when it is to the left, then adjust.
-          {
-            goalState = STATE_GOAL_ROTATE_STOP;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
-          }
-          else if(CAM_direction == BEACON_LEFT)
-          {
-            goalState = STATE_GOAL_ROTATE_RIGHT;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
-          }
-          else if(goalTimer < millis())
-          {
-            goalState = STATE_GOAL_ROTATE_LEFT_STOP;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT_STOP;
-          }
-          break;
+        if(alignedToGoal())   // TODO - Could stop when it is to the left, then adjust.
+        {
+          goalState = STATE_GOAL_ROTATE_STOP;
+          goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
+        }
+        else if(CAM_direction == BEACON_LEFT)
+        {
+          goalState = STATE_GOAL_ROTATE_RIGHT;
+          goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
+        } 
+        else if(goalTimer < millis())
+        {
+          goalState = STATE_GOAL_ROTATE_LEFT_STOP;
+          goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT_STOP;
+        }
+        break;
 
-          case STATE_GOAL_ROTATE_LEFT_STOP:
-            motorLeft.stop();
-            motorRight.stop();
+      case STATE_GOAL_ROTATE_LEFT_STOP:
+        motorLeft.stop();
+        motorRight.stop();
 
-            if(goalTimer < millis())
+        if(goalTimer < millis())
+        {
+          goalState = STATE_GOAL_ROTATE_LEFT;
+          goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
+        }
+        break;
+
+      case STATE_GOAL_ROTATE_RIGHT:
+        motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
+        motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
+
+        if(alignedToGoal())   // TODO - Could stop when it is to the left, then adjust.
+        {
+          goalState = STATE_GOAL_ROTATE_STOP;
+          goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
+        }
+        else if(CAM_direction == BEACON_RIGHT)
+        {
+          goalState = STATE_GOAL_ROTATE_LEFT;
+          goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
+        }
+        else if(goalTimer < millis())
+        {
+          goalState = STATE_GOAL_ROTATE_RIGHT_STOP;
+          goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT_STOP;
+        }
+        break;
+
+      case STATE_GOAL_ROTATE_RIGHT_STOP:
+        motorLeft.stop();
+        motorRight.stop();
+
+        if(goalTimer < millis())
+        {
+          goalState = STATE_GOAL_ROTATE_RIGHT;
+          goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
+        }
+        break;
+
+      case STATE_GOAL_ROTATE_STOP:
+        motorLeft.stop();
+        motorRight.stop();
+
+        if(goalTimer < millis())
+        {
+          if(alignedToGoal())
+          {
+            goalState = STATE_GOAL_BACKOFF;
+            goalTimer = millis() + TIMER_GOAL_BACKOFF; 
+          }
+          else
+          {
+            goalState = STATE_GOAL_DRIVE_OVER_MAT_LEFT; // Go back and check that we are aligned right.
+            goalTimer = 0;
+          }
+        }
+        break;
+
+      case STATE_GOAL_BACKOFF:
+        motorLeft.driveForwards(MOTOR_LEFT_GOAL_SPEED);
+        motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
+
+        if(!(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON))
+        {
+          if(alignedToGoal())
+          {
+            goalState = STATE_GOAL_KICK_DELAY;
+            goalTimer = millis() + TIMER_GOAL_KICK_DELAY;
+          }
+          else
+          {
+            if(CAM_direction == BEACON_RIGHT)
             {
               goalState = STATE_GOAL_ROTATE_LEFT;
               goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
             }
-            break;
-
-        case STATE_GOAL_ROTATE_RIGHT:
-          motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
-          motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
-
-          if(alignedToGoal())   // TODO - Could stop when it is to the left, then adjust.
-          {
-            goalState = STATE_GOAL_ROTATE_STOP;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
-          }
-          else if(CAM_direction == BEACON_RIGHT)
-          {
-            goalState = STATE_GOAL_ROTATE_LEFT;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
-          }
-          else if(goalTimer < millis())
-          {
-            goalState = STATE_GOAL_ROTATE_RIGHT_STOP;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT_STOP;
-          }
-          break;
-
-          case STATE_GOAL_ROTATE_RIGHT_STOP:
-            motorLeft.stop();
-            motorRight.stop();
-
-            if(goalTimer < millis())
+            else
             {
               goalState = STATE_GOAL_ROTATE_RIGHT;
               goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
             }
-            break;
-
-        case STATE_GOAL_ROTATE_STOP:
-          motorLeft.stop();
-          motorRight.stop();
-
-          if(goalTimer < millis())
-          {
-            if(alignedToGoal())
-            {
-              goalState = STATE_GOAL_BACKOFF;
-              goalTimer = millis() + TIMER_GOAL_BACKOFF; 
-            }
-            else
-            {
-              goalState = STATE_GOAL_DRIVE_OVER_MAT_LEFT; // Go back and check that we are aligned right.
-              goalTimer = 0;
-            }
           }
-          break;
+        }
+        else if(goalTimer < millis())
+        {
+          goalState = STATE_GOAL_BACKOFF_STOP;
+          goalTimer = millis() + TIMER_GOAL_BACKOFF_STOP;
+        }
+        break;
 
-        case STATE_GOAL_BACKOFF:
-          motorLeft.driveForwards(MOTOR_LEFT_GOAL_SPEED);
-          motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
+      case STATE_GOAL_BACKOFF_STOP:
+        motorLeft.stop();
+        motorRight.stop();
 
-          if(!(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON) || goalTimer < millis())
-          {
-            if(alignedToGoal())
-            {
-              goalState = STATE_GOAL_KICK_DELAY;
-              goalTimer = millis() + TIMER_GOAL_KICK_DELAY;
-            }
-            else
-            {
-              goalState = STATE_GOAL_DRIVE_OVER_MAT_LEFT; // Go back and check that we are aligned right.
-              goalTimer = 0;						 //  Do not drive onto the mat in the process.
-            }
+        if(goalTimer < millis())
+        {
+          goalState = STATE_GOAL_BACKOFF;
+          goalTimer = millis() + TIMER_GOAL_BACKOFF;
+        }
+        break;
 
-            motorLeft.stop();   // This is to increase reaction speed.
-            motorRight.stop();
-          }
-          break;
+      case STATE_GOAL_KICK_DELAY:
+        motorLeft.stop();
+        motorRight.stop();
 
-        case STATE_GOAL_KICK_DELAY:
-          motorLeft.stop();
-          motorRight.stop();
+        if(goalTimer < millis())
+        {
+          servoTimer = millis() + TIMER_SERVO_KICK_1_DELAY;
+          servoState = STATE_SERVO_KICK_1_DELAY;
+          goalState = STATE_GOAL_KICK;
+        }
+        break;
 
-          if(goalTimer < millis())
-          {
-            servoTimer = millis() + TIMER_SERVO_KICK_1_DELAY;
-            servoState = STATE_SERVO_KICK_1_DELAY;
-            goalState = STATE_GOAL_KICK;
-          }
-          break;
-
-        case STATE_GOAL_KICK:
-          motorLeft.stop();
-          motorRight.stop();
-          break;
-
+      case STATE_GOAL_KICK:
+        motorLeft.stop();
+        motorRight.stop();
+        break;
     }
   }
   else if(overallState.getState() == STATE_OVERALL_AVOID_GOAL)
