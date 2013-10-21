@@ -1,10 +1,10 @@
-#define IRFL_FRONT_CLOSE_Thresh 	300		// Set
-#define IRFL_FRONT_FAR_Thresh		120		// Set
-#define IRFR_FRONT_CLOSE_Thresh 	300		// Set
-#define IRFR_FRONT_FAR_Thresh		120		// Set
+#define IRFL_FRONT_CLOSE_Thresh 	300	
+#define IRFL_FRONT_FAR_Thresh		120	
+#define IRFR_FRONT_CLOSE_Thresh 	300	
+#define IRFR_FRONT_FAR_Thresh		120	
 #define IRFL_SIDE_CLOSE_Thresh		500
 #define IRFL_SIDE_FAR_Thresh		200
-#define IRFR_SIDE_CLOSE_Thresh		500		// Try 250 front 300
+#define IRFR_SIDE_CLOSE_Thresh		500	
 #define IRFR_SIDE_FAR_Thresh		200
 
 #define IRFL_FRONT_Thresh			IRFL_FRONT_FAR_Thresh
@@ -13,12 +13,12 @@
 #define IRFR_SIDE_Thresh			IRFR_SIDE_CLOSE_Thresh
 
 #define IRBL_FRONT_CLOSE_Thresh 	350
-#define IRBL_FRONT_FAR_Thresh		200		// Coul be 150
+#define IRBL_FRONT_FAR_Thresh		200	
 #define IRBR_FRONT_CLOSE_Thresh 	200
-#define IRBR_FRONT_FAR_Thresh		150		// Try 150 from 100
+#define IRBR_FRONT_FAR_Thresh		150	
 #define IRBL_SIDE_CLOSE_Thresh		250
 #define IRBL_SIDE_FAR_Thresh		100
-#define IRBR_SIDE_CLOSE_Thresh		300		// Try 250 front 300
+#define IRBR_SIDE_CLOSE_Thresh		300	
 #define IRBR_SIDE_FAR_Thresh		100
 
 #define IRBL_BACK_Thresh		IRBL_FRONT_FAR_Thresh /// These should be de

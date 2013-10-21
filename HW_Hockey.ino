@@ -164,6 +164,12 @@ void setMotors()
 
       if(wallFollowLeft)
       {
+
+        if(TFL.on() || TFR.on())
+        {   // Touch sensors or front is very close
+          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
+        }
+
         switch(driveState.getState())
         {
           case STATE_DRIVE_FORWARDS:
@@ -253,6 +259,11 @@ void setMotors()
       }
       else
       {
+        if(TFL.on() || TFR.on() || IRFR.getFront() > IRFR_FRONT_CLOSE_Thresh)
+        {   // Touch sensors or front is very close
+          driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
+        } 
+            
         switch(driveState.getState())
         {
           case STATE_DRIVE_FORWARDS:
@@ -370,6 +381,11 @@ void setMotors()
       
       if(wallFollowLeft)
       {
+        if(TBL.on() || TBR.on())
+        {   // Touch sensors or front is very close
+          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_RIGHT_BACK);
+        }
+
         switch(driveState.getState())
         {
           case STATE_DRIVE_FORWARDS:
@@ -455,6 +471,11 @@ void setMotors()
       }
       else
       {
+        if(TBL.on() || TBR.on())
+        {   // Touch sensors or front is very close
+          driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_LEFT_BACK);
+        }
+
         switch(driveState.getState())
         {
           case STATE_DRIVE_FORWARDS:
