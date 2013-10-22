@@ -67,6 +67,10 @@ int goalAlignRotateAttempts = 0;
 
 int offset = 0;
 
+int matExitTime = 0;
+
+bool wasOnGreenMat = false;
+
 void setup() {
 
   pinMode(CAMERA_CLK_PIN, OUTPUT);
@@ -831,39 +835,50 @@ void setMotors()
 
           if(!(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON))
           {
-            int offset = 0;
-
-            if(wallFollowLeft)
-              offset = GOAL_LEFT_OFFSET;
-            else
-              offset = GOAL_RIGHT_OFFSET;
-
-            if(alignedToGoal(offset))
+            if(matExitTime == 0)
+              matExitTime = millis();
+            if(matExitTime + GET_OFF_MAT_FOR_GOAL  < millis() || !wasOnGreenMat)
             {
-              goalState = STATE_GOAL_KICK_DELAY;
-              goalTimer = millis() + TIMER_GOAL_KICK_DELAY;
-            }
-            else
-            {
-              if(CAM_direction == BEACON_RIGHT && beaconDetected())
+              wasOnGreenMat = false;
+              int offset = 0;
+
+              if(wallFollowLeft)
+                offset = GOAL_LEFT_OFFSET;
+              else
+                offset = GOAL_RIGHT_OFFSET;
+
+              if(alignedToGoal(offset))
               {
-                goalState = STATE_GOAL_ROTATE_RIGHT;
-                goalAlignRotateAttempts = 0;
-                goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
+                goalState = STATE_GOAL_KICK_DELAY;
+                goalTimer = millis() + TIMER_GOAL_KICK_DELAY;
               }
               else
               {
-                goalState = STATE_GOAL_ROTATE_LEFT;
-                goalAlignRotateAttempts = 0;
-                goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT/2;
+                if(CAM_direction == BEACON_RIGHT && beaconDetected())
+                {
+                  goalState = STATE_GOAL_ROTATE_RIGHT;
+                  goalAlignRotateAttempts = 0;
+                  goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
+                }
+                else
+                {
+                  goalState = STATE_GOAL_ROTATE_LEFT;
+                  goalAlignRotateAttempts = 0;
+                  goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT/2;
+                }
               }
             }
           }
           else if(goalTimer < millis())
           {
+            matExitTime = 0;
+            wasOnGreenMat = true;
             goalState = STATE_GOAL_BACKOFF_STOP;
             goalTimer = millis() + TIMER_GOAL_BACKOFF_STOP;
           }
+          else
+            matExitTime = 0;
+            wasOnGreenMat = true;
           break;
 
         case STATE_GOAL_BACKOFF_STOP:
