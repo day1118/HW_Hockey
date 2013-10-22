@@ -418,6 +418,7 @@ void setMotors()
     if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
     {
       overallState.setState(STATE_OVERALL_ALIGN_GOAL, TIMER_OVERALL_ALIGN_GOAL);
+      driveState.setState(STATE_DRIVE_FORWARDS, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK*2);
       goalTimer = millis() + TIMER_GOAL_DRIVE_OVER_MAT;
       if(wallFollowLeft)
         goalState = STATE_GOAL_DRIVE_OVER_MAT_LEFT;
@@ -880,7 +881,7 @@ void setMotors()
   { 		// Could be done better by locking for camera, then driving away.
     CAM_direction = camera.read();
     clearStallDetect();
-    if(overallState.expired())
+    if(overallState.expired() && (!(driveState.getState() == STATE_DRIVE_FORWARDS)))
     {
       driveState.setState(STATE_DRIVE_FORWARDS, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK*2);
     }
@@ -906,7 +907,9 @@ void setMotors()
         motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
         motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
 
-        if(driveState.expired())
+        if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
+          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_RIGHT_BACK);
+        else if(driveState.expired())
         {
           unsigned long extraTime = overallState.getTimeSinceChange() + overallState.getTimeSinceChangePrev();
           overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
@@ -929,7 +932,9 @@ void setMotors()
         motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
         motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
 
-        if(driveState.expired())
+        if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
+          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_RIGHT_BACK);
+        else if(driveState.expired())
         {
           unsigned long extraTime = 0;
           if(overallState.getStatePrev() == STATE_OVERALL_SEARCH_BALL)
@@ -943,6 +948,9 @@ void setMotors()
       case STATE_DRIVE_FORWARDS:
         motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
         motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
+
+        if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
+          driveState.setState(STATE_DRIVE_FORWARDS, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK*2);
 
         if(driveState.expired())
         {
@@ -971,7 +979,6 @@ void setMotors()
           }
         }
         break;
-
     }
   }
   else
