@@ -13,6 +13,7 @@ public:
 
 private:
 	void plotSpeed(int direction);
+	int limit(int pwm);
 	int _pinA;
 	int _pinB;
 	int _pinEnable;

@@ -4,9 +4,9 @@
 #include "Thresholds.h"
 
 #define	DEBUG_PRINT_OFF
-#define	PLOT_PRINT_ON
+#define	PLOT_PRINT_OFF
 
-#define MOTORS_OFF
+#define MOTORS_ON
 #define BRUSHES_ON
 #define STALL_DETECTION_ON
 
@@ -15,7 +15,7 @@
 #define PLOT_PRINT_IR_ON_DETAIL
 #define PLOT_PRINT_COLOUR_OFF
 #define PLOT_PRINT_SERVOS_OFF
-#define PLOT_PRINT_MOTORS_OFF
+#define PLOT_PRINT_MOTORS_ON
 #define PLOT_PRINT_CAMERA_OFF_DETAIL
 #define PLOT_PRINT_US_OFF
 

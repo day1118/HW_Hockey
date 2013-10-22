@@ -23,7 +23,7 @@ _enabled = false;
 }
 
 void Motor::stop(){
-	int _pwm = 0;
+	_pwm = 0;
 	if(_enabled)
 	{
 		digitalWrite(_pinA, LOW);
@@ -34,7 +34,7 @@ void Motor::stop(){
 }
 
 void Motor::driveForwards(int pwm){
-	int _pwm = pwm;
+	_pwm = limit(pwm);
 	#ifdef MOTORS_ON
 		if(_enabled)
 		{
@@ -47,7 +47,7 @@ void Motor::driveForwards(int pwm){
 }
 
 void Motor::driveBackwards(int pwm){
-	int _pwm = pwm;
+	_pwm = limit(pwm);
 	#ifdef MOTORS_ON
 		if(_enabled)
 		{
@@ -64,4 +64,14 @@ void Motor::plotSpeed(int direction){
 		PLOT(_name + "_Speed", _pwm);
 		PLOT(_name + "_Direction", direction);
 	#endif
+}
+
+int Motor::limit(int pwm)
+{
+	if(pwm < 0)
+		return 0;
+	else if(pwm > 255)
+		return 255;
+	else
+		return pwm;
 }
