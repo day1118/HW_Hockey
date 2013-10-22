@@ -395,10 +395,10 @@ void setMotors()
     {
       overallState.setState(STATE_OVERALL_ALIGN_GOAL, TIMER_OVERALL_ALIGN_GOAL);
       goalTimer = millis() + TIMER_GOAL_DRIVE_OVER_MAT;
-      if(greenMatLeftState == GREEN_MAT_ON)
-        goalState = STATE_GOAL_DRIVE_OVER_MAT_RIGHT;
-      else
+      if(wallFollowLeft)
         goalState = STATE_GOAL_DRIVE_OVER_MAT_LEFT;
+      else
+        goalState = STATE_GOAL_DRIVE_OVER_MAT_RIGHT;
     }
     else
     {
