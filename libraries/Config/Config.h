@@ -30,6 +30,7 @@
 
 #define IR_FILTER_SIZE                      3
 #define COLOUR_FILTER_SIZE                  5
+#define ENCODER_FILTER_SIZE                 5
 #define TOUCH_SENSOR_FILTER_SIZE            1
 
 #define IR_STALL_TIME						20000

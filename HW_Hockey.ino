@@ -11,6 +11,7 @@
   #include "Camera.h"
   #include "Filter.h"
   #include "StateMachine.h"
+  #include "Encoder.h"
 
   #include <Servo.h> 
   #include <NewPing.h> 
@@ -28,10 +29,10 @@ Motor motorRight("MOTOR_RIGHT", MOTOR_R_A_PIN, MOTOR_R_B_PIN, MOTOR_R_ENABLE_PIN
   Motor motorBrushes("MOTOR_BRUSHES");
 #endif
 
-IRSensor IRFL("IRFL", IRFL_IR_LED_PIN, IRFL_FRONT_PHOTOTRANSISTOR_PIN, IRFL_SIDE_PHOTOTRANSISTOR_PIN, IRFL_FRONT_Thresh, IRFL_SIDE_Thresh);
-IRSensor IRFR("IRFR", IRFR_IR_LED_PIN, IRFR_FRONT_PHOTOTRANSISTOR_PIN, IRFR_SIDE_PHOTOTRANSISTOR_PIN, IRFR_FRONT_Thresh, IRFR_SIDE_Thresh);
-IRSensor IRBL("IRBL", IRBL_IR_LED_PIN, IRBL_BACK_PHOTOTRANSISTOR_PIN, IRBL_SIDE_PHOTOTRANSISTOR_PIN, IRBL_BACK_Thresh, IRBL_SIDE_Thresh);
-IRSensor IRBR("IRBR", IRBR_IR_LED_PIN, IRBR_BACK_PHOTOTRANSISTOR_PIN, IRBR_SIDE_PHOTOTRANSISTOR_PIN, IRBR_BACK_Thresh, IRBR_SIDE_Thresh);
+IRSensor IRFL("IRFL", IRFL_IR_LED_PIN, IRFL_FRONT_PHOTOTRANSISTOR_PIN, IRFL_SIDE_PHOTOTRANSISTOR_PIN, IRFL_FRONT_CLOSE_Thresh, IRFL_SIDE_CLOSE_Thresh);
+IRSensor IRFR("IRFR", IRFR_IR_LED_PIN, IRFR_FRONT_PHOTOTRANSISTOR_PIN, IRFR_SIDE_PHOTOTRANSISTOR_PIN, IRFR_FRONT_CLOSE_Thresh, IRFR_SIDE_CLOSE_Thresh);
+IRSensor IRBL("IRBL", IRBL_IR_LED_PIN, IRBL_BACK_PHOTOTRANSISTOR_PIN, IRBL_SIDE_PHOTOTRANSISTOR_PIN, IRBL_FRONT_CLOSE_Thresh, IRBL_SIDE_CLOSE_Thresh);
+IRSensor IRBR("IRBR", IRBR_IR_LED_PIN, IRBR_BACK_PHOTOTRANSISTOR_PIN, IRBR_SIDE_PHOTOTRANSISTOR_PIN, IRBR_FRONT_CLOSE_Thresh, IRBR_SIDE_CLOSE_Thresh);
 
 ColourSensor GML("GML", GREEN_MAT_LEFT_RED_LED_PIN, GREEN_MAT_LEFT_GREEN_LED_PIN, GREEN_MAT_LEFT_PHOTOTRANSISTOR_PIN);
 ColourSensor GMR("GMR", GREEN_MAT_RIGHT_RED_LED_PIN, GREEN_MAT_RIGHT_GREEN_LED_PIN, GREEN_MAT_RIGHT_PHOTOTRANSISTOR_PIN);
@@ -174,6 +175,10 @@ void setMotors()
       {
         if(stallDetected())
         {
+          motorRight.driveForwards(255);
+          motorRight.driveBackwards(255);
+          delay(5000);
+          clearStallDetect();
           driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK_DUMB, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
         }
         else if(TFL.on() || TFR.on())
@@ -282,6 +287,10 @@ void setMotors()
       {
         if(stallDetected())
         {
+          motorRight.driveForwards(255);
+          motorRight.driveBackwards(255);
+          delay(5000);
+          clearStallDetect();
           driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK_DUMB, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
         }
         else if(TFL.on() || TFR.on())
@@ -418,6 +427,10 @@ void setMotors()
       {
         if(stallDetected())
         {
+          motorRight.driveForwards(255);
+          motorRight.driveBackwards(255);
+          delay(5000);
+          clearStallDetect();
           driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK_DUMB, TIMER_DRIVE_BACKWARD_BACKOFF_RIGHT_BACK);
         }
         else if(TBL.on() || TBR.on())
@@ -523,6 +536,10 @@ void setMotors()
         
         if(stallDetected())
         {
+          motorRight.driveForwards(255);
+          motorRight.driveBackwards(255);
+          delay(5000);
+          clearStallDetect();
           driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK_DUMB, TIMER_DRIVE_BACKWARD_BACKOFF_LEFT_BACK);
         }
         else if(TBL.on() || TBR.on())
@@ -819,7 +836,7 @@ void setMotors()
     }
   }
   else if(overallState.getState() == STATE_OVERALL_AVOID_GOAL)
-  { 		// Could be done better by locking for camera, then driving away.
+  {     // Could be done better by locking for camera, then driving away.
     CAM_direction = camera.read();
     clearStallDetect();
     if(beaconDetected())
@@ -1151,7 +1168,7 @@ void readUSSensors()
 }
 
 bool alignedToGoal()
-{	// May need to check if peak is centered more accuratly.
+{ // May need to check if peak is centered more accuratly.
   return (CAM_direction == BEACON_CENTER && beaconDetected());
 }
 

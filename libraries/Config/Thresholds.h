@@ -7,10 +7,10 @@
 #define IRFR_SIDE_CLOSE_Thresh		500	
 #define IRFR_SIDE_FAR_Thresh		200
 
-#define IRFL_FRONT_Thresh			IRFL_FRONT_CLOSE_Thresh
+/*#define IRFL_FRONT_Thresh			IRFL_FRONT_CLOSE_Thresh
 #define IRFR_FRONT_Thresh			IRFR_FRONT_CLOSE_Thresh
 #define IRFL_SIDE_Thresh			IRFL_SIDE_CLOSE_Thresh
-#define IRFR_SIDE_Thresh			IRFR_SIDE_CLOSE_Thresh
+#define IRFR_SIDE_Thresh			IRFR_SIDE_CLOSE_Thresh*/
 
 #define IRBL_FRONT_CLOSE_Thresh 	350
 #define IRBL_FRONT_FAR_Thresh		200	
@@ -21,10 +21,10 @@
 #define IRBR_SIDE_CLOSE_Thresh		300	
 #define IRBR_SIDE_FAR_Thresh		100
 
-#define IRBL_BACK_Thresh		IRBL_FRONT_CLOSE_Thresh /// These should be de
+/*#define IRBL_BACK_Thresh		IRBL_FRONT_CLOSE_Thresh /// These should be de
 #define IRBR_BACK_Thresh		IRBR_FRONT_CLOSE_Thresh
 #define IRBL_SIDE_Thresh		IRBL_SIDE_CLOSE_Thresh /// These should be de
-#define IRBR_SIDE_Thresh		IRBR_SIDE_CLOSE_Thresh
+#define IRBR_SIDE_Thresh		IRBR_SIDE_CLOSE_Thresh*/
 
 #define BALL_IR_Thresh          150
 #define BALL_RED_Thresh         60
