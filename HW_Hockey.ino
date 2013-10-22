@@ -56,7 +56,7 @@ int greenMatLeftState = GREEN_MAT_OFF;
 int greenMatRightState = GREEN_MAT_OFF;
 int CAM_direction;
 
-bool wallFollowLeft = true;
+bool wallFollowLeft = false;
 
 unsigned long servoTimer = 0, goalTimer = 0;
 
@@ -64,6 +64,8 @@ unsigned int US_back_cm;
 unsigned int US_front_cm;
 
 int goalAlignRotateAttempts = 0;
+
+int offset = 0;
 
 void setup() {
 
@@ -148,6 +150,11 @@ void setMotors()
     if(greenMatRightState == GREEN_MAT_ON || greenMatLeftState == GREEN_MAT_ON)
     {
       //TODO - Handle avoiding goal.
+      wallFollowLeft = !wallFollowLeft;
+
+      motorLeft.driveBackwards(MOTOR_LEFT_BACKWARD_SPEED);
+      motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
+
       overallState.setState(STATE_OVERALL_AVOID_GOAL, TIMER_OVERALL_AVOID_GOAL);
       if(wallFollowLeft)  
         driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
@@ -669,12 +676,12 @@ void setMotors()
       switch(goalState)
       {
         case STATE_GOAL_DRIVE_OVER_MAT_LEFT:
-          if(goalTimer < 10)
+          /*if(goalTimer < 10)
           {
             motorLeft.stop();
             motorRight.stop();
           }
-          else
+          else*/
           {
             motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
             motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
@@ -689,12 +696,12 @@ void setMotors()
           break;
 
         case STATE_GOAL_DRIVE_OVER_MAT_RIGHT:
-          if(goalTimer < 10)
+          /*if(goalTimer < 10)
           {
             motorLeft.stop();
             motorRight.stop();
           }
-          else
+          else*/
           {
             motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
             motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
@@ -704,7 +711,7 @@ void setMotors()
           {
             goalState = STATE_GOAL_ROTATE_RIGHT;
             goalAlignRotateAttempts = 0;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT/2;
           }
           break;
 
@@ -712,16 +719,22 @@ void setMotors()
           motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
           motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
 
-          if(alignedToGoal(GOAL_LEFT_OFFSET))   // TODO - Could stop when it is to the left, then adjust.
+          offset = 0;
+          if(wallFollowLeft)
+            offset = GOAL_LEFT_OFFSET;
+          else
+            offset = GOAL_RIGHT_OFFSET;
+
+          if(alignedToGoal(offset))   // TODO - Could stop when it is to the left, then adjust.
           {
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
           }
-          else if((beaconDetected() && (camera.getCenter() > (((CAMERA_RESOLUTION/2) + GOAL_LEFT_OFFSET) + CAMERA_CENTERED_WIDTH))) || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_LEFT + TIMER_GOAL_ROTATE_LEFT_STOP)) > GOAL_ROTATE_TIME_MAX)
+          else if((beaconDetected() && (camera.getCenter() < (((CAMERA_RESOLUTION/2) + offset) + CAMERA_CENTERED_WIDTH))) || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_LEFT + TIMER_GOAL_ROTATE_LEFT_STOP)) > GOAL_ROTATE_TIME_MAX)
           {
             goalState = STATE_GOAL_ROTATE_RIGHT;
             goalAlignRotateAttempts = 0;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT/2;
           } 
           else if(goalTimer < millis())
           {
@@ -749,12 +762,18 @@ void setMotors()
           motorLeft.driveForwards(MOTOR_LEFT_GOAL_SPEED);
           motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
 
-          if(alignedToGoal(GOAL_RIGHT_OFFSET))   // TODO - Could stop when it is to the left, then adjust.
+          offset = 0;
+          if(wallFollowLeft)
+            offset = GOAL_LEFT_OFFSET;
+          else
+            offset = GOAL_RIGHT_OFFSET;
+
+          if(alignedToGoal(offset))   // TODO - Could stop when it is to the left, then adjust.
           {
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
           }
-          else if((beaconDetected() && (camera.getCenter() < (((CAMERA_RESOLUTION/2) - GOAL_RIGHT_OFFSET) + CAMERA_CENTERED_WIDTH))) || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_LEFT + TIMER_GOAL_ROTATE_LEFT_STOP)) > GOAL_ROTATE_TIME_MAX)
+          else if((beaconDetected() && (camera.getCenter() > (((CAMERA_RESOLUTION/2) + offset) + CAMERA_CENTERED_WIDTH))) || (goalAlignRotateAttempts * (TIMER_GOAL_ROTATE_LEFT + TIMER_GOAL_ROTATE_LEFT_STOP)) > GOAL_ROTATE_TIME_MAX)
           {
             goalState = STATE_GOAL_ROTATE_LEFT;
             goalAlignRotateAttempts = 0;
@@ -788,7 +807,7 @@ void setMotors()
 
           if(goalTimer < millis())
           {
-            int offset = 0;
+            offset = 0;
             if(wallFollowLeft)
               offset = GOAL_LEFT_OFFSET;
             else
@@ -828,15 +847,15 @@ void setMotors()
             {
               if(CAM_direction == BEACON_RIGHT && beaconDetected())
               {
-                goalState = STATE_GOAL_ROTATE_LEFT;
+                goalState = STATE_GOAL_ROTATE_RIGHT;
                 goalAlignRotateAttempts = 0;
                 goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
               }
               else
               {
-                goalState = STATE_GOAL_ROTATE_RIGHT;
+                goalState = STATE_GOAL_ROTATE_LEFT;
                 goalAlignRotateAttempts = 0;
-                goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
+                goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT/2;
               }
             }
           }
