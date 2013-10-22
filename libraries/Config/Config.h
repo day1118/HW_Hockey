@@ -4,20 +4,21 @@
 #include "Thresholds.h"
 
 #define	DEBUG_PRINT_OFF
-#define	PLOT_PRINT_OFF
+#define	PLOT_PRINT_ON
 
 #define MOTORS_ON
 #define BRUSHES_ON
 #define STALL_DETECTION_ON
 
-#define PLOT_PRINT_STATUS_ON
-#define PLOT_PRINT_TOUCH_ON_DETAIL
-#define PLOT_PRINT_IR_ON_DETAIL
-#define PLOT_PRINT_COLOUR_ON
+#define PLOT_PRINT_STATUS_OFF
+#define PLOT_PRINT_TOUCH_OFF_DETAIL
+#define PLOT_PRINT_IR_OFF_DETAIL
+#define PLOT_PRINT_COLOUR_OFF
 #define PLOT_PRINT_SERVOS_OFF
-#define PLOT_PRINT_MOTORS_ON
+#define PLOT_PRINT_MOTORS_OFF
 #define PLOT_PRINT_CAMERA_OFF_DETAIL
-#define PLOT_PRINT_US_ON
+#define PLOT_PRINT_US_OFF
+#define PLOT_PRINT_ENCODER_ON_DETAIL
 
 #define AUTO_REVERSE_DIRECTION 
 
@@ -30,7 +31,7 @@
 
 #define IR_FILTER_SIZE                      3
 #define COLOUR_FILTER_SIZE                  5
-#define ENCODER_FILTER_SIZE                 5
+#define ENCODER_FILTER_SIZE                  5
 #define TOUCH_SENSOR_FILTER_SIZE            1
 
 #define IR_STALL_TIME						20000
@@ -120,6 +121,7 @@
 #define MOTOR_B_B_PIN		            	38
 #define MOTOR_B_ENABLE_PIN		    		5
 
+#define ENCODER_POWER_PIN         40
 #define ENCODER_LEFT_PIN					A2
 #define ENCODER_RIGHT_PIN					A3
 

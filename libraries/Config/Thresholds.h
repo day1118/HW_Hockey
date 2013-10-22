@@ -21,6 +21,9 @@
 #define IRBR_SIDE_CLOSE_Thresh		300	
 #define IRBR_SIDE_FAR_Thresh		100
 
+#define ENCODER_LEFT_Thresh			200
+#define ENCODER_RIGHT_Thresh		350
+
 /*#define IRBL_BACK_Thresh		IRBL_FRONT_CLOSE_Thresh /// These should be de
 #define IRBR_BACK_Thresh		IRBR_FRONT_CLOSE_Thresh
 #define IRBL_SIDE_Thresh		IRBL_SIDE_CLOSE_Thresh /// These should be de

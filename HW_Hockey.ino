@@ -45,6 +45,9 @@ TouchSensor TBR("TBR", BACK_RIGHT_TOUCH_SENSOR);
 
 Camera camera("CAM", CAMERA_SI_PIN, CAMERA_CLK_PIN, CAMERA_ANALOG_IN_PIN);
 
+Encoder ENCL("ENCL", ENCODER_POWER_PIN, ENCODER_LEFT_PIN, ENCODER_LEFT_Thresh);
+Encoder ENCR("ENCR", ENCODER_POWER_PIN, ENCODER_RIGHT_PIN, ENCODER_RIGHT_Thresh);
+
 StateMachine overallState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
 StateMachine driveState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
 StateMachine stalledState(STATE_NOT_STALLED, NEVER_EXPIRE);
@@ -90,9 +93,11 @@ void loop() {
   readTouchSensors();
   readColourSensors();
   readUSSensors();
+  readEncoders();
   setMotors();
   setServos();
   stallDetected();
+
 
   #if defined PLOT_PRINT_CAMERA_ON_DETAIL && defined PLOT_PRINT_ON
     camera.read();
@@ -1261,4 +1266,10 @@ void clearStallDetect()
 bool beaconDetected()
 {
   return (CAM_direction != BEACON_NONE && US_back_cm > 0 && US_back_cm < 100);
+}
+
+void readEncoders()
+{
+  ENCL.update();
+  ENCR.update();
 }
