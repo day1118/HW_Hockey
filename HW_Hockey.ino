@@ -95,6 +95,7 @@ void loop() {
 
   #if defined PLOT_PRINT_CAMERA_ON_DETAIL && defined PLOT_PRINT_ON
     camera.read();
+    alignedToGoal(GOAL_LEFT_OFFSET);
   #endif
 
   #ifdef PLOT_PRINT_STATUS_ON
@@ -145,7 +146,7 @@ void setMotors()
     if(greenMatRightState == GREEN_MAT_ON || greenMatLeftState == GREEN_MAT_ON)
     {
       //TODO - Handle avoiding goal.
-      overallState.setState(STATE_OVERALL_AVOID_GOAL, NEVER_EXPIRE);
+      overallState.setState(STATE_OVERALL_AVOID_GOAL, TIMER_OVERALL_AVOID_GOAL);
       if(wallFollowLeft)  
         driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
       else
@@ -264,6 +265,16 @@ void setMotors()
             }
             break;
 
+          case STATE_DRIVE_BACKOFF_LEFT_LEFT:
+            motorLeft.stop();
+            motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
+
+            if(driveState.expired())
+            {
+              driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
+            }
+            break;
+
           case STATE_DRIVE_STOP:
             motorLeft.stop();
             motorRight.stop();
@@ -364,6 +375,17 @@ void setMotors()
           case STATE_DRIVE_BEND_LEFT_STRAIGHT:
             motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
             motorRight.driveForwards(MOTOR_RIGHT_FORWARD_SPEED);
+
+            if(driveState.expired())
+            {
+              driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
+            }
+            break;
+
+          case STATE_DRIVE_BACKOFF_RIGHT_RIGHT:
+            motorLeft.driveForwards(MOTOR_LEFT_FORWARD_SPEED);
+            //motorRight.driveBackwards(MOTOR_RIGHT_BACKWARD_SPEED);
+            motorRight.stop();
 
             if(driveState.expired())
             {
@@ -671,7 +693,7 @@ void setMotors()
           motorLeft.driveBackwards(MOTOR_LEFT_GOAL_SPEED);
           motorRight.driveForwards(MOTOR_RIGHT_GOAL_SPEED);
 
-          if(alignedToGoal())   // TODO - Could stop when it is to the left, then adjust.
+          if(alignedToGoal(GOAL_LEFT_OFFSET))   // TODO - Could stop when it is to the left, then adjust.
           {
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
@@ -705,7 +727,7 @@ void setMotors()
           motorLeft.driveForwards(MOTOR_LEFT_GOAL_SPEED);
           motorRight.driveBackwards(MOTOR_RIGHT_GOAL_SPEED);
 
-          if(alignedToGoal())   // TODO - Could stop when it is to the left, then adjust.
+          if(alignedToGoal(GOAL_RIGHT_OFFSET))   // TODO - Could stop when it is to the left, then adjust.
           {
             goalState = STATE_GOAL_ROTATE_STOP;
             goalTimer = millis() + TIMER_GOAL_ROTATE_STOP; 
@@ -822,11 +844,16 @@ void setMotors()
   { 		// Could be done better by locking for camera, then driving away.
     CAM_direction = camera.read();
     clearStallDetect();
-    if(beaconDetected())
+    if(overallState.expired())
+    {
+      driveState.setState(STATE_DRIVE_FORWARDS, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK*2);
+    }
+    else if(beaconDetected())
     {
       if(driveState.getState() != STATE_DRIVE_FORWARDS)
         driveState.setState(STATE_DRIVE_FORWARDS, STATE_DRIVE_BACKOFF_LEFT_BACK);
     }
+
     switch(driveState.getState())
     {
       case STATE_DRIVE_BACKOFF_LEFT_BACK:
@@ -906,8 +933,6 @@ void setMotors()
             overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
             driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
           }
-
-          
         }
         break;
 
@@ -1048,7 +1073,10 @@ void setServos()
       if(servoTimer < millis())
       {
         overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
-        driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
+        if(wallFollowLeft)
+          driveState.setState(STATE_DRIVE_BACKOFF_LEFT_LEFT, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_LEFT);
+        else
+          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_RIGHT, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_RIGHT);
         servoState = STATE_SERVO_SERACH;
         clearStallDetect();
       }
@@ -1244,4 +1272,20 @@ void clearStallDetect()
 bool beaconDetected()
 {
   return (CAM_direction != BEACON_NONE && US_back_cm > 0 && US_back_cm < 100);
+}
+
+bool alignedToGoal(int offset)
+{
+  int tempCenter = camera.getCenter();
+  int targetCenter = (CAMERA_RESOLUTION/2) + offset;
+  int width = camera.getWidth();
+
+  bool aligned = (tempCenter > (targetCenter - CAMERA_CENTERED_WIDTH)) && (tempCenter < (targetCenter + CAMERA_CENTERED_WIDTH));
+  #ifdef PLOT_PRINT_CAMERA_ON_DETAIL
+    PLOT("aligned", aligned);
+    PLOT("width", width);
+    PLOT("targetCenter", targetCenter);
+    PLOT("tempCenter", tempCenter);
+  #endif
+  return (!(CAM_direction == BEACON_NONE) && aligned && US_back_cm > 0 && US_back_cm < 100);
 }

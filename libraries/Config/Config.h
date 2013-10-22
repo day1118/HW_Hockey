@@ -16,7 +16,7 @@
 #define PLOT_PRINT_COLOUR_ON
 #define PLOT_PRINT_SERVOS_OFF
 #define PLOT_PRINT_MOTORS_ON
-#define PLOT_PRINT_CAMERA_OFF_DETAIL
+#define PLOT_PRINT_CAMERA_ON_DETAIL
 #define PLOT_PRINT_US_ON
 
 #define AUTO_REVERSE_DIRECTION 
@@ -46,7 +46,7 @@
 #define SERVO_BACK_UP                       70
 #define SERVO_BACK_DOWN                     140
 
-#define SERVO_KICK_UP                       90
+#define SERVO_KICK_UP                       80
 #define SERVO_KICK_DOWN                     10
 
 #define MAX_ULTRASONIC_DISTANCE_CM          100

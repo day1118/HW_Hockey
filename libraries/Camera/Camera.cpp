@@ -5,6 +5,8 @@ Camera::Camera(String name, int pinSI, int pinCLK, int pinAIN){
 	_pinCLK = pinCLK;
 	_pinAIN = pinAIN;
 	_name = name;
+  _center = 0;
+  _width = 0;
 
 	pinMode(_pinSI, OUTPUT);
 	pinMode(_pinCLK, OUTPUT);
@@ -96,6 +98,9 @@ int Camera::read(){
     CAM_direction = BEACON_NONE;
   }
 
+  _center = CAM_center;
+  _width = CAM_bestWidth;
+
   #if defined(PLOT_PRINT_CAMERA_ON) || defined(PLOT_PRINT_CAMERA_ON_DETAIL)
     PLOT("CAM_Start", CAM_bestStart);
     PLOT("CAM_Width", CAM_bestWidth);
@@ -103,4 +108,17 @@ int Camera::read(){
   #endif
 
 	return CAM_direction;
+}
+
+int Camera::getCenter()
+{
+  if(_width > CAMERA_MIN_WIDTH)
+    return _center;
+  else
+    return -1;
+}
+
+int Camera::getWidth()
+{
+  return _width;
 }
