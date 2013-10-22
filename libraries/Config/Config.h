@@ -37,7 +37,7 @@
 #define CAMERA_RESOLUTION                   128
 #define CAMERA_EXPOSURE_TIME                200
 
-#define DESIRED_BALL_COLOUR                 BALL_BLUE
+#define DESIRED_BALL_COLOUR                 BALL_RED
 
 /*** Define named positions ***/
 #define SERVO_FRONT_UP                      75
