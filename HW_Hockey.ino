@@ -28,10 +28,10 @@ Motor motorRight("MOTOR_RIGHT", MOTOR_R_A_PIN, MOTOR_R_B_PIN, MOTOR_R_ENABLE_PIN
   Motor motorBrushes("MOTOR_BRUSHES");
 #endif
 
-IRSensor IRFL("IRFL", IRFL_IR_LED_PIN, IRFL_FRONT_PHOTOTRANSISTOR_PIN, IRFL_SIDE_PHOTOTRANSISTOR_PIN, IRFL_FRONT_Thresh, IRFL_SIDE_Thresh);
-IRSensor IRFR("IRFR", IRFR_IR_LED_PIN, IRFR_FRONT_PHOTOTRANSISTOR_PIN, IRFR_SIDE_PHOTOTRANSISTOR_PIN, IRFR_FRONT_Thresh, IRFR_SIDE_Thresh);
-IRSensor IRBL("IRBL", IRBL_IR_LED_PIN, IRBL_BACK_PHOTOTRANSISTOR_PIN, IRBL_SIDE_PHOTOTRANSISTOR_PIN, IRBL_BACK_Thresh, IRBL_SIDE_Thresh);
-IRSensor IRBR("IRBR", IRBR_IR_LED_PIN, IRBR_BACK_PHOTOTRANSISTOR_PIN, IRBR_SIDE_PHOTOTRANSISTOR_PIN, IRBR_BACK_Thresh, IRBR_SIDE_Thresh);
+IRSensor IRFL("IRFL", IRFL_IR_LED_PIN, IRFL_FRONT_PHOTOTRANSISTOR_PIN, IRFL_SIDE_PHOTOTRANSISTOR_PIN, IRFL_FRONT_FAR_Thresh, IRFL_SIDE_FAR_Thresh);
+IRSensor IRFR("IRFR", IRFR_IR_LED_PIN, IRFR_FRONT_PHOTOTRANSISTOR_PIN, IRFR_SIDE_PHOTOTRANSISTOR_PIN, IRFR_FRONT_FAR_Thresh, IRFR_SIDE_FAR_Thresh);
+IRSensor IRBL("IRBL", IRBL_IR_LED_PIN, IRBL_BACK_PHOTOTRANSISTOR_PIN, IRBL_SIDE_PHOTOTRANSISTOR_PIN, IRBL_FRONT_FAR_Thresh, IRBL_SIDE_FAR_Thresh);
+IRSensor IRBR("IRBR", IRBR_IR_LED_PIN, IRBR_BACK_PHOTOTRANSISTOR_PIN, IRBR_SIDE_PHOTOTRANSISTOR_PIN, IRBR_FRONT_FAR_Thresh, IRBR_SIDE_FAR_Thresh);
 
 ColourSensor GML("GML", GREEN_MAT_LEFT_RED_LED_PIN, GREEN_MAT_LEFT_GREEN_LED_PIN, GREEN_MAT_LEFT_PHOTOTRANSISTOR_PIN);
 ColourSensor GMR("GMR", GREEN_MAT_RIGHT_RED_LED_PIN, GREEN_MAT_RIGHT_GREEN_LED_PIN, GREEN_MAT_RIGHT_PHOTOTRANSISTOR_PIN);
@@ -107,6 +107,8 @@ void loop() {
     PLOT("goalState", goalState);
     PLOT("servoState", servoState);
     PLOT("millis", millis());
+    PLOT("IRBR_FRONT_TimeSinceChanged", IRBR.frontGetTimeSinceChange())
+    PLOT("IRBR_SIDE_TimeSinceChanged", IRBR.sideGetTimeSinceChange())
   #endif
 }
 
@@ -723,10 +725,7 @@ void setMotors()
           else if(goalTimer < millis())
           {
             goalState = STATE_GOAL_ROTATE_LEFT_STOP;
-            if(beaconDetected())
-              goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT_STOP/2;
-            else
-              goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT_STOP;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT_STOP;
             goalAlignRotateAttempts ++;
           }
           break;
@@ -738,7 +737,10 @@ void setMotors()
           if(goalTimer < millis())
           {
             goalState = STATE_GOAL_ROTATE_LEFT;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
+            if(beaconDetected())
+              goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT/2;
+            else
+              goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT;
           }
           break;
 
@@ -760,10 +762,7 @@ void setMotors()
           else if(goalTimer < millis())
           {
             goalState = STATE_GOAL_ROTATE_RIGHT_STOP;
-            if(beaconDetected)
-              goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT_STOP;
-            else
-              goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT_STOP;
+            goalTimer = millis() + TIMER_GOAL_ROTATE_LEFT_STOP;
             goalAlignRotateAttempts ++;
           }
           break;
@@ -775,7 +774,10 @@ void setMotors()
           if(goalTimer < millis())
           {
             goalState = STATE_GOAL_ROTATE_RIGHT;
-            goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
+            if(beaconDetected())
+              goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT/2;
+            else
+              goalTimer = millis() + TIMER_GOAL_ROTATE_RIGHT;
           }
           break;
 
@@ -815,7 +817,7 @@ void setMotors()
               offset = GOAL_LEFT_OFFSET;
             else
               offset = GOAL_RIGHT_OFFSET;
-            
+
             if(alignedToGoal(offset))
             {
               goalState = STATE_GOAL_KICK_DELAY;
