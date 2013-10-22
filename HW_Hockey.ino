@@ -99,6 +99,7 @@ void loop() {
 
   #ifdef PLOT_PRINT_STATUS_ON
     PLOT("overallState", overallState.getState());
+    PLOT("overallStatePrev", overallState.getStatePrev());
     PLOT("overallStateTime", overallState.getTimeSinceChange());
     PLOT("wallFollowLeft", wallFollowLeft);
     PLOT("driveState", driveState.getState());
@@ -149,6 +150,11 @@ void setMotors()
         driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_RIGHT_BACK);
       else
         driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_FORWARD_BACKOFF_LEFT_BACK);
+    }
+    else if(servoState == STATE_SERVO_RIGHT_BALL)
+    {
+      overallState.setState(STATE_OVERALL_SEARCH_GOAL, TIMER_OVERALL_SEARCH_GOAL);
+      driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
     }
     else
     {
@@ -574,9 +580,15 @@ void setMotors()
     motorBrushes.stop();
     CAM_direction = camera.read();
 
+    if(greenMatLeftState != GREEN_MAT_ON && greenMatRightState != GREEN_MAT_ON)
+    {
+      overallState.setState(STATE_OVERALL_ALIGN_GOAL, TIMER_OVERALL_ALIGN_GOAL);
+    }
+
     if(overallState.expired() && !(goalState == STATE_GOAL_KICK || goalState == STATE_GOAL_KICK_DELAY))
     {
       overallState.setState(STATE_OVERALL_AVOID_GOAL, NEVER_EXPIRE);
+      driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, STATE_DRIVE_BACKOFF_LEFT_BACK);
     }
     else
     {
@@ -822,11 +834,30 @@ void setMotors()
         if(driveState.expired())
         {
           unsigned long extraTime = 0;
-          if(overallState.getStatePrev() == STATE_OVERALL_SEARCH_BALL)
+          if(overallState.getStatePrev() == STATE_OVERALL_ALIGN_GOAL)
+          {
+            if(greenMatLeftState == GREEN_MAT_ON || greenMatRightState == GREEN_MAT_ON)
+              driveState.setState(STATE_DRIVE_FORWARDS, STATE_DRIVE_BACKOFF_LEFT_BACK);
+            else  
+            {
+              overallState.setState(STATE_OVERALL_SEARCH_GOAL, TIMER_OVERALL_SEARCH_GOAL);
+              driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
+            }
+          }
+          else if(overallState.getStatePrev() == STATE_OVERALL_SEARCH_BALL)
+          {
             extraTime = overallState.getTimeSinceChange() + overallState.getTimeSinceChangePrev();
-          overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
-          overallState.addTimeSinceChange(extraTime);
-          driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
+            overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
+            overallState.addTimeSinceChange(extraTime);
+            driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
+          }
+          else
+          {
+            overallState.setState(STATE_OVERALL_SEARCH_BALL, TIMER_OVERALL_SEARCH_BALL);
+            driveState.setState(STATE_DRIVE_FORWARDS, NEVER_EXPIRE);
+          }
+
+          
         }
         break;
 

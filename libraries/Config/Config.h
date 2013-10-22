@@ -4,7 +4,7 @@
 #include "Thresholds.h"
 
 #define	DEBUG_PRINT_OFF
-#define	PLOT_PRINT_ON
+#define	PLOT_PRINT_OFF
 
 #define MOTORS_ON
 #define BRUSHES_ON
@@ -43,8 +43,8 @@
 #define SERVO_FRONT_UP                      75
 #define SERVO_FRONT_DOWN                    5
 
-#define SERVO_BACK_UP                       110
-#define SERVO_BACK_DOWN                     180
+#define SERVO_BACK_UP                       70
+#define SERVO_BACK_DOWN                     140
 
 #define SERVO_KICK_UP                       90
 #define SERVO_KICK_DOWN                     10
