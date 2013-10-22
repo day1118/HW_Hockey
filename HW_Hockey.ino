@@ -396,7 +396,11 @@ void setMotors()
       
       if(wallFollowLeft)
       {
-        if(TBL.on() || TBR.on())
+        if(stallDetected())
+        {
+          driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_RIGHT_BACK);
+        }
+        else if(TBL.on() || TBR.on())
         {   // Touch sensors or front is very close
           driveState.setState(STATE_DRIVE_BACKOFF_RIGHT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_RIGHT_BACK);
         }
@@ -486,7 +490,12 @@ void setMotors()
       }
       else
       {
-        if(TBL.on() || TBR.on())
+        
+        if(stallDetected())
+        {
+          driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_LEFT_BACK);
+        }
+        else if(TBL.on() || TBR.on())
         {   // Touch sensors or front is very close
           driveState.setState(STATE_DRIVE_BACKOFF_LEFT_BACK, TIMER_DRIVE_BACKWARD_BACKOFF_LEFT_BACK);
         }
